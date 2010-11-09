@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- CORE configuration -->
+		<!-- ================== -->
+		<!-- Root directory -->
+		<parameter key="kernel.root_dir">..</parameter>
+		
+		<!-- Event Dispatcher -->
+		<parameter key="event_dispatcher.class">Symfony\Bundle\FrameworkBundle\EventDispatcher</parameter>
+		
+		<!-- Request and Response -->
+		<parameter key="http_kernel.class">Symfony\Component\HttpKernel\HttpKernel</parameter>
+		<parameter key="request.class">Symfony\Component\HttpFoundation\Request</parameter>
+		<parameter key="response.class">Symfony\Component\HttpFoundation\Response</parameter>
+		
+		<!-- Controller and modules -->
+		<parameter key="controller_resolver.class">Falcon\Site\Framework\Controller\ControllerResolver</parameter>
+		
+		<!--  Error and Exception handler -->
+		<!--
+		<parameter key="error_handler.class">Symfony\Framework\Debug\ErrorHandler</parameter>
+		<parameter key="error_handler.level">null</parameter>
+		<parameter key="error_handler.enable">true</parameter>
+		-->
+		
+		<!-- ESI -->
+		<!--
+		<parameter key="esi.class">Symfony\Component\HttpKernel\Cache\Esi</parameter>
+		<parameter key="esi_listener.class">Symfony\Component\HttpKernel\Cache\EsiListener</parameter>
+		-->
+		<!-- Debugging -->
+		<parameter key="kernel.debug">1</parameter>
+		
+		<!-- Caching -->
+		<parameter key="kernel.cache_dir">../datas/cache</parameter>
+		
+		<!-- Loging -->
+		<parameter key="kernel.logs_dir">../datas/logs</parameter>
+	</parameters>
+	
+	<services>
+		<!-- CORE services -->
+		<!-- ============= -->
+		<!-- Event Dispatcher -->
+		<service id="event_dispatcher" class="%event_dispatcher.class%">
+			<argument type="service" id="service_container" />
+		</service>
+        
+		<!-- Controller Resolver -->
+		<service id="controller_resolver" class="%controller_resolver.class%">
+			<call method="setServiceContainer">
+				<argument type="service" id="service_container" />
+			</call>
+			<!--
+			<argument type="service" id="service_container" />
+			<argument type="service" id="module_manager" />
+			-->
+		</service>
+		
+		<!-- Http Kernel, Request and Response -->
+		<service id="http_kernel" class="%http_kernel.class%">
+			<argument type="service" id="event_dispatcher" />
+			<argument type="service" id="controller_resolver" />
+		</service>
+		<service id="request" class="%request.class%">
+		</service>
+		<service id="response" class="%response.class%" shared="false" />
+		
+		<!-- Error and Exception handler -->
+		<!--
+		<service id="error_handler" class="%error_handler.class%">
+			<argument>%error_handler.level%</argument>
+			<call method="register" />
+		</service>
+		-->
+		
+		<!-- ESI -->
+		<!--
+		<service id="esi" class="%esi.class%" />
+		<service id="esi_listener" class="%esi_listener.class%">
+			<annotation name="kernel.listener" />
+			<argument type="service" id="esi" on-invalid="ignore" />
+		</service>
+		-->
+	</services>
+</container>

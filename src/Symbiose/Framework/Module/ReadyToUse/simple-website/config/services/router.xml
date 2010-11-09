@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- LISTENER configuration -->
+		<!-- ====================== -->
+		<parameter key="routing_listener.class">Modules\SimpleWebsite\Listeners\RoutingListener</parameter>
+		
+		<!-- ROUTER configuration -->
+		<!-- ==================== -->
+		<parameter key="router.class">Falcon\Site\Component\Routing\RouterStateful</parameter>
+		<parameter key="router.loader.class">Falcon\Site\Component\Routing\Loader\XmlFileLoader</parameter>
+		<parameter key="router.options.matcher_cache_class">RouterUrlMatcherCache</parameter>
+		<parameter key="router.options.generator_cache_class">RouterUrlGeneratorCache</parameter>
+	</parameters>
+	<services>
+		<!-- LISTENER service -->
+		<!-- ================ -->
+		<service id="routing_listener" class="%routing_listener.class%">
+			<tag name="kernel.listener" />
+			<call method="setServiceContainer">
+				<argument type="service" id="service_container" />
+			</call>
+		</service>
+		
+		<!-- ROUTER service -->
+		<!-- ============== -->
+		<service id="router" class="%router.class%">
+        	<tag name="service_starter.register" />
+        	<argument type="service">
+        		<service class="%router.loader.class%" />
+        	</argument>
+        	<argument type="service" id="cache_manager" on-invalid="null"/>
+        	<argument type="collection">
+		    	<argument key="debug">%kernel.debug%</argument>
+		        <argument key="matcher_cache_class">%router.options.matcher_cache_class%</argument>
+		        <argument key="generator_cache_class">%router.options.generator_cache_class%</argument>
+		    </argument>
+		</service>
+	</services>
+</container>

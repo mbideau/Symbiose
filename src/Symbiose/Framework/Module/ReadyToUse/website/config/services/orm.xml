@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- ORM configuration -->
+        <!-- ================= -->
+        <!-- Doctrine Common -->
+        <!--<parameter key="doctrine.common.cache.class">Doctrine\Common\Cache\ArrayCache</parameter>-->
+        <parameter key="doctrine.common.cache.class">Modules\Website\Classes\DoctrineFileCache</parameter>
+		<parameter key="doctrine.common.event_manager.class">Doctrine\Common\EventManager</parameter>
+		
+        <!-- Doctrine ORM -->
+		<parameter key="doctrine.orm.configuration.class">Doctrine\ORM\Configuration</parameter>
+		<parameter key="doctrine.orm.configuration.param.proxies.dir">../datas/db/proxies</parameter>
+		<parameter key="doctrine.orm.configuration.param.proxies.namespace">Proxies</parameter>
+		<parameter key="doctrine.orm.configuration.param.proxies.autogenerate">%kernel.debug%</parameter>
+		<parameter key="doctrine.orm.configuration.param.entities.namespace">Entities</parameter>
+		<parameter key="doctrine.orm.mapping.driver.class">Doctrine\ORM\Mapping\Driver\AnnotationDriver</parameter>
+		<parameter key="doctrine.orm.mapping.driver.annotation.reader.class">Doctrine\Common\Annotations\AnnotationReader</parameter>
+		<parameter key="doctrine.orm.mapping.driver.annotation.reader.default_annotation_namespace">Doctrine\ORM\Mapping\</parameter>
+		<parameter key="doctrine.orm.mapping.driver.annotation.entities_dir">../application/models/Entities</parameter>
+		<!--<parameter key="doctrine.orm.entity_manager.class">Doctrine\ORM\EntityManager</parameter>-->
+
+		<!-- Doctrine DBAL -->
+		
+		<!-- Entity Manager -->
+		<parameter key="orm.entity_manager.class">Doctrine\ORM\EntityManager</parameter>
+	</parameters>
+	
+	<services>
+		<!-- ORM service -->
+        <!-- =========== -->
+        <!-- Cache -->
+		<service id="doctrine_cache" class="%doctrine.common.cache.class%">
+			<argument type="service" id="cache_manager" />
+		</service>
+		
+		<!-- Mapping driver -->
+        <service id="doctrine_mapping_driver" class="%doctrine.orm.mapping.driver.class%">
+			<argument type="service">
+				<service class="%doctrine.orm.mapping.driver.annotation.reader.class%">
+					<call method="setDefaultAnnotationNamespace">
+						<argument type="string">%doctrine.orm.mapping.driver.annotation.reader.default_annotation_namespace%</argument>
+					</call>
+				</service>
+			</argument>
+			<argument type="collection">
+				<argument type="string">%doctrine.orm.mapping.driver.annotation.entities_dir%</argument>
+			</argument>
+		</service>
+		
+		<!-- Configuration -->
+		<service id="doctrine_configuration" class="%doctrine.orm.configuration.class%">
+			<call method="setProxyDir">
+				<argument type="string">%doctrine.orm.configuration.param.proxies.dir%</argument>
+			</call>
+			<call method="setProxyNamespace">
+				<argument type="string">%doctrine.orm.configuration.param.proxies.namespace%</argument>
+			</call>
+			<call method="setAutoGenerateProxyClasses">
+				<argument type="string">%doctrine.orm.configuration.param.proxies.autogenerate%</argument>
+			</call>
+			<call method="setEntityNamespaces">
+				<argument type="collection">
+					<argument type="string">%doctrine.orm.configuration.param.entities.namespace%</argument>
+				</argument>
+			</call>
+			<call method="setMetadataDriverImpl">
+				<argument type="service" id="doctrine_mapping_driver" />
+			</call>
+			<call method="setMetadataCacheImpl">
+				<argument type="service" id="doctrine_cache" />
+			</call>
+			<call method="setQueryCacheImpl">
+				<argument type="service" id="doctrine_cache" />
+			</call>
+		</service>
+		
+		<!-- Entity Manager -->
+		<service id="entity_manager" class="%orm.entity_manager.class%" factory-method="create">
+			<argument type="collection">
+				<argument key="driver">%database.driver%</argument>
+				<argument key="host">%database.host%</argument>
+				<argument key="dbname">%database.dbname%</argument>
+				<argument key="user">%database.user%</argument>
+				<argument key="password">%database.password%</argument>
+			</argument>
+			<argument type="service" id="doctrine_configuration" />
+		</service>
+		
+		<!--<service id="doctrine_event_manager" class="%doctrine.common.event_manager.class%" />-->
+		
+		<!-- ORM -->
+		<service id="orm" alias="entity_manager" />
+	</services>
+</container>

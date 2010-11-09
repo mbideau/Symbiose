@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://www.symfony-project.org/schema/routing"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.symfony-project.org/schema/routing http://www.symfony-project.org/schema/routing/routing-1.0.xsd">
+	
+	<route id="www_just_root" pattern="/">
+		<default key="controller">index</default>
+		<default key="action">index</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
+	<route id="www_just_controller" pattern="/:controller/">
+		<default key="controller">index</default>
+		<default key="action">index</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
+	<route id="hello_controller" pattern="/hello/:name/">
+		<default key="controller">hello</default>
+		<default key="action">index</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
+	<route id="www" pattern="/:controller/:action/">
+		<default key="controller">index</default>
+		<default key="action">index</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
+	<route id="www_format" pattern="/:controller/:action.:format">
+		<default key="controller">index</default>
+		<default key="action">index</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
+</routes>

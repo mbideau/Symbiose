@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<imports>
+		<import resource="services/logger.xml" />
+		<import resource="services/event_dispatcher.xml" />
+		<import resource="services/request_and_response.xml" />
+		<import resource="services/controller_resolver.xml" />
+		<import resource="services/http_kernel.xml" />
+	</imports>
+</container>

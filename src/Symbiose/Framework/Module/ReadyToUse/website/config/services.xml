@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<imports>
+		<import resource="services/exception_manager.xml" />
+		<import resource="services/session.xml" />
+		<import resource="services/database.xml" />
+		<import resource="services/orm.xml" />
+		<import resource="services/rendering_engine.xml" />
+		<import resource="services/validator.xml" />
+	</imports>
+</container>

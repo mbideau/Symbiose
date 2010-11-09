@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- LOGGER configuration -->
+		<!-- ==================== -->
+		<parameter key="logger.class">Falcon\Site\Component\Logging\Logger</parameter>
+		<!-- error -->
+		<parameter key="logger.error.file">../datas/logs/application-error.log</parameter>
+		<parameter key="logger.error.writer.class">Zend_Log_Writer_Stream</parameter>
+		<parameter key="logger.error.filter.class">Zend_Log_Filter_Priority</parameter>
+		<parameter key="logger.error.filter.value">4</parameter>
+		<parameter key="logger.error.formater.class">Zend_Log_Formatter_Simple</parameter>
+		<parameter key="logger.error.formater.format">%%timestamp%% %%priorityName%%: %%message%%></parameter>
+		<!-- debug -->
+		<parameter key="logger.debug.file">../datas/logs/application-debug.log</parameter>
+		<parameter key="logger.debug.writer.class">Zend_Log_Writer_Stream</parameter>
+		<parameter key="logger.debug.formater.class">Zend_Log_Formatter_Simple</parameter>
+		<parameter key="logger.debug.formater.format">%%timestamp%% %%priorityName%%: %%message%%
+</parameter>
+	</parameters>
+	<services>
+		<!-- LOGGER service -->
+		<!-- ============== -->
+		<!-- logger -->
+		<service id="logger" class="%logger.class%">
+			<call method="addWriter">
+				<argument type="service" id="logger.debug.writer" />
+			</call>
+			<call method="addWriter">
+				<argument type="service" id="logger.error.writer" />
+			</call>
+			<call method="registerErrorHandler" />
+		</service>
+		
+		<!-- error writer -->
+		<service id="logger.error.writer" class="%logger.error.writer.class%">
+            <argument>%logger.error.file%</argument>
+            <call method="addFilter">
+            	<argument type="service" id="logger.error.filter" />
+            </call>
+            <call method="setFormatter">
+            	<argument type="service" id="logger.error.formater" />
+            </call>
+        </service>
+        <!-- error formatter -->
+        <service id="logger.error.formater" class="%logger.error.formater.class%">
+            <argument>%logger.error.formater.format%</argument>
+        </service>
+        <!-- error filter -->
+        <service id="logger.error.filter" class="%logger.error.filter.class%">
+            <argument>%logger.error.filter.value%</argument>
+        </service>
+        
+        <!-- debug writer -->
+		<service id="logger.debug.writer" class="%logger.debug.writer.class%">
+            <argument>%logger.debug.file%</argument>
+            <call method="setFormatter">
+            	<argument type="service" id="logger.debug.formater" />
+            </call>
+        </service>
+        <!-- debug formatter -->
+        <service id="logger.debug.formater" class="%logger.debug.formater.class%">
+            <argument>%logger.debug.formater.format%</argument>
+        </service>
+	</services>
+</container>

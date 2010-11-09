@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<version>0.0.1</version>
+	<!--
+	<resources-needed>
+		<required>
+			<service></service>
+			<class></class>
+		</required>
+		<optional>
+			<service></service>
+			<class></class>
+		</optional>
+	</resources-needed>
+	
+	<resources-provided>
+		<service name="event_dispatcher" />
+		<service name="http_kernel" />
+		<service name="request" />
+		<service name="response" />
+		<service name="response_listener" />
+		<service name="controller_resolver" />
+		<service name="exception_listener" />
+		
+		<service name="logger" />
+		
+		<service name="routing_listener" />
+		<service name="router" />
+		
+		<service name="session" />
+		<service name="session.storage" />
+		
+		<service name="database" />
+		<service name="entity_manager" />
+		<service name="orm" />
+		
+		<class />
+	</resources-provided>
+	-->
+	<dependencies>
+		<module name="simple-website" version=">= 0.0.1" />
+	</dependencies>
+	<order>
+		<module name="simple-website" position="after" />
+	</order>
+	<register-classes>
+		<namespace name="Modules\Website\Classes" path="classes"/>
+	</register-classes>
+	<cache-file>config/caching.xml</cache-file>
+	<services-file>config/services.xml</services-file>
+</config>

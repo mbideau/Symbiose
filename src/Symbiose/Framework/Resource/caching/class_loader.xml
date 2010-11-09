@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caching>
+	<class_loader>
+		<frontendBackendAutoload>1</frontendBackendAutoload>
+		<frontend>
+			<name>Core</name>
+			<options>
+				<cache_id_prefix>class_loader_</cache_id_prefix>
+				<lifetime>3600</lifetime>
+				<automatic_cleaning_factor>0</automatic_cleaning_factor>
+				<write_control>1</write_control>
+			</options>
+		</frontend>
+		<backend>
+			<name>File</name>
+			<options>
+				<cache_dir>../datas/cache</cache_dir>
+		        <file_locking>1</file_locking>
+		        <read_control>1</read_control>
+		        <read_control_type>crc32</read_control_type>
+		        <hashed_directory_level>0</hashed_directory_level>
+		        <hashed_directory_umask>0770</hashed_directory_umask>
+		        <file_name_prefix>class_loader_</file_name_prefix>
+		        <cache_file_umask>0664</cache_file_umask>
+		        <metadatas_array_max_size>100</metadatas_array_max_size>
+        	</options>
+		</backend>
+	</class_loader>
+</caching>

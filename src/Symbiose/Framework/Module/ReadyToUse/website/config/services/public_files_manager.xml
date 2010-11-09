@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<parameter key="public_files_manager.class">Falcon\Site\PublicFilesManager</parameter>
+		<parameter key="public_files_manager.staticRoot">../../static</parameter>
+		<parameter key="public_files_manager.staticHost">http://static.intranet.dev</parameter>
+		<parameter key="public_files_manager.addUploadDir">true</parameter>
+		<parameter key="public_files_manager.defaultPublicDir">public</parameter>
+		<parameter key="public_files_manager.uploadDirname">uploads</parameter>
+	</parameters>
+	<services>
+		<service id="public_files_manager" class="%public_files_manager.class%">
+			<call method="setStaticRoot">
+				<argument type="string">%public_files_manager.staticRoot%</argument>
+			</call>
+			<call method="setStaticHost">
+				<argument type="string">%public_files_manager.staticHost%</argument>
+			</call>
+			<call method="setAddUploadDir">
+				<argument type="string">%public_files_manager.addUploadDir%</argument>
+			</call>
+			<call method="setDefaultPublicDir">
+				<argument type="string">%public_files_manager.defaultPublicDir%</argument>
+			</call>
+			<call method="setUploadDirname">
+				<argument type="string">%public_files_manager.uploadDirname%</argument>
+			</call>
+			<call method="setExtensionGroupDir">
+				<argument type="collection">
+					<argument key="img" type="collection">
+						<argument type="string">jpg</argument>
+						<argument type="string">jpeg</argument>
+						<argument type="string">png</argument>
+						<argument type="string">gif</argument>
+						<argument type="string">tiff</argument>
+					</argument>
+					<argument key="docs" type="collection">
+						<argument type="string">xls</argument>
+						<argument type="string">doc</argument>
+						<argument type="string">csv</argument>
+						<argument type="string">ppt</argument>
+						<argument type="string">txt</argument>
+						<argument type="string">rtf</argument>
+					</argument>
+				</argument>
+			</call>
+		</service>
+	</services>
+</container>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- LISTENER configuration -->
+		<!-- ====================== -->
+		<parameter key="rendering_listener.class">Falcon\Site\Framework\RenderingListener</parameter>
+		<parameter key="rendering_listener.default_view_dir">../application/views</parameter>
+        <parameter key="rendering_listener.module_directory">../application/modules</parameter>
+        <parameter key="rendering_listener.view_module_dir">views/scripts</parameter>
+        <parameter key="rendering_listener.layout_dir">layouts/scripts</parameter>
+        <parameter key="rendering_listener.default_layout_name">layout</parameter>
+        <parameter key="rendering_listener.default_format">html</parameter>
+		
+		<!-- RENDERING ENGINE configuration -->
+		<!-- ============================== -->
+        <parameter key="rendering_engine.class">Falcon\Site\Component\RenderingEngine</parameter>
+    </parameters>
+	<services>
+		<!-- LISTENER service -->
+		<!-- ================ -->
+		<service id="rendering_listener" class="%rendering_listener.class%">
+			<tag name="kernel.listener" />
+			<call method="setServiceContainer">
+				<argument type="service" id="service_container" />
+			</call>
+			<!--
+			<argument type="service" id="rendering_engine" />
+			<argument type="service" id="response" on-invalid="null"/>
+			-->
+			<argument type="string">%rendering_listener.default_view_dir%</argument>
+			<argument type="string">%rendering_listener.module_directory%</argument>
+			<argument type="string">%rendering_listener.view_module_dir%</argument>
+			<argument type="string">%rendering_listener.layout_dir%</argument>
+			<argument type="string">%rendering_listener.default_layout_name%</argument>
+			<argument type="string">%rendering_listener.default_format%</argument>
+		</service>
+		
+		<!-- RENDERING ENGINE service -->
+		<!-- ======================== -->
+		<service id="rendering_engine" class="%rendering_engine.class%" />
+	</services>
+</container>

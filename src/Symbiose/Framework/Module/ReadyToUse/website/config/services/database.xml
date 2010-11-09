@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- DATABASE connection -->
+		<!-- =================== -->
+		<parameter key="database.class">Doctrine\DBAL\Driver\PDOConnection</parameter>
+		<parameter key="database.driver">pdo_mysql</parameter>
+		<parameter key="database.host">localhost</parameter>
+		<parameter key="database.dbname">intranet.dev</parameter>
+		<parameter key="database.user">dev</parameter>
+		<parameter key="database.password">dev</parameter>
+		<parameter key="database.dsn">mysql:dbname=intranet.dev;host=localhost</parameter>
+	</parameters>
+	<services>
+		<!-- DATABASE service -->
+		<!-- ================ -->
+		<service id="database" class="%database.class%">
+			<argument type="string">%database.dsn%</argument>
+			<argument type="string">%database.user%</argument>
+			<argument type="string">%database.password%</argument>
+		</service>
+	</services>
+</container>

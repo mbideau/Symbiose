@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- HTTP KERNEL configuration -->
+		<!-- ========================= -->
+		<parameter key="http_kernel.class">Symfony\Component\HttpKernel\HttpKernel</parameter>
+		<parameter key="kernel.root_dir">..</parameter>
+		<parameter key="kernel.debug">0</parameter>
+		<parameter key="kernel.cache_dir">../datas/cache</parameter>
+		<parameter key="kernel.logs_dir">../datas/logs</parameter>
+	</parameters>
+	
+	<services>
+		<!-- HTTP KERNEL service -->
+		<!-- =================== -->
+		<service id="http_kernel" class="%http_kernel.class%">
+			<argument type="service" id="service_container" />
+			<argument type="service" id="event_dispatcher" />
+			<argument type="service" id="controller_resolver" />
+		</service>
+	</services>
+</container>
