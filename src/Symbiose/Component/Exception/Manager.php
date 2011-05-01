@@ -1,11 +1,18 @@
 <?php
 
-namespace Falcon\Site\Component;
+namespace Symbiose\Component\Exception;
 
-class ExceptionManager
+use RuntimeException as Exception;
+
+class Manager
 {
 	protected $defaultExceptionRedirection;
 	protected $exceptionRedirections = array();
+	
+	/*public function handleException(\Exception $e)
+	{
+		
+	}*/
 	
 	public function setExceptionRedirections(array $exceptionRedirections)
 	{
@@ -14,12 +21,12 @@ class ExceptionManager
 	
 	public function setDefaultExceptionRedirection($callableRedirection)
 	{
-		if(empty($callableRedirection)) {
+		/*if(empty($callableRedirection)) {
 			throw new Exception("ExceptionManager::setDefaultExceptionRedirection : exception redirection is empty");
 		}
 		if(!is_callable($callableRedirection)) {
 			throw new Exception("ExceptionManager::setDefaultExceptionRedirection : exception redirection is not callable");
-		}
+		}*/
 		$this->defaultExceptionRedirection = $callableRedirection;
 	}
 
@@ -33,12 +40,12 @@ class ExceptionManager
 		if(empty($exceptionClassname)) {
 			throw new Exception("ExceptionManager::addExceptionRedirection : exception classname is empty");
 		}
-		if(empty($callableRedirection)) {
+		/*if(empty($callableRedirection)) {
 			throw new Exception("ExceptionManager::addExceptionRedirection : exception redirection is empty");
 		}
 		if(!is_callable($callableRedirection)) {
 			throw new Exception("ExceptionManager::addExceptionRedirection : exception redirection is not callable");
-		}
+		}*/
 		if(!$this->hasExceptionRedirection($exceptionClassname) || $overwrite) {
 			$this->exceptionRedirections[$exceptionClassname] = $callableRedirection;
 		}
@@ -57,6 +64,14 @@ class ExceptionManager
 		if(empty($exceptionClassname)) {
 			throw new Exception("ExceptionManager::getExceptionRedirection : exception classname is empty");
 		}
-		return $this->hasExceptionRedirection($exceptionClassname) ? $this->exceptionRedirections[$exceptionClassname] : ($onNotFoundReturnDefault === true ? $this->defaultExceptionRedirection : null);
+		if($this->hasExceptionRedirection($exceptionClassname)) {
+			return $this->exceptionRedirections[$exceptionClassname];
+		}
+		else {
+			if($onNotFoundReturnDefault) {
+				return $this->defaultExceptionRedirection;
+			}
+		}
+		return null;
 	}
 }

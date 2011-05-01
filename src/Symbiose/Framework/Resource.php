@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework;
+namespace Symbiose\Framework;
 
 class Resource
 {

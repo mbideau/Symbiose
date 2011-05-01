@@ -1,12 +1,12 @@
 <?php
 
-namespace Falcon\Site\Component\Service;
+namespace Symbiose\Component\Service;
 
-use Falcon\Site\Component\Logging\FileLogger;
+use Symbiose\Component\Logging\FileLogger;
 
-use Falcon\Site\Component\Service\ServiceContainerAware,
-	Falcon\Site\Component\Object\StatefulInterface,
-	Falcon\Site\Component\Service\Exception\ServiceException as Exception
+use Symbiose\Component\Service\ServiceContainerAware,
+	Symbiose\Component\Object\StatefulInterface,
+	Symbiose\Component\Service\Exception\ServiceException as Exception
 ;
 
 class ServiceStarter

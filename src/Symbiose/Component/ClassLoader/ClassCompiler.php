@@ -1,7 +1,7 @@
 <?php
-namespace Falcon\Site\Component\ClassLoader;
+namespace Symbiose\Component\ClassLoader;
 
-use Falcon\Site\Component\ClassLoader\Exception\ClassLoaderException as Exception
+use Symbiose\Component\ClassLoader\Exception\ClassLoaderException as Exception
 ;
 
 class ClassCompiler

@@ -1,29 +1,34 @@
 <?php
 
-namespace Falcon\Site\Component\ClassLoader;
+namespace Symbiose\Component\ClassLoader;
 
-use Falcon\Site\Component\ClassLoader\ClassLoader,
-	Falcon\Site\Component\Object\StatefulInterface
+use Zend\Loader\ClassMapAutoloader,
+	Symbiose\Component\Object\StatefulInterface
 ;
 
 class ClassLoaderStateful
-	extends ClassLoader
+	extends ClassMapAutoloader
 	implements StatefulInterface
 {
 	static protected $cacheId = 'class_loader';
-	static protected $cacheConfigId = 'config';
+	static protected $cacheConfigId = 'map';
+	
+	/**
+	 * The cache manager instance
+	 * @var object
+	 */
+	protected $cacheManager;
 	
 	protected $state;
 	
+	public function autoload($class)
+    {
+        return parent::autoload($class);
+    }
+	
 	public function getState()
 	{
-		return serialize(array(
-			'env' => $this->envName,
-			'debug' => $this->debug,
-			'namespaces' => $this->namespaces,
-			'prefixes' => $this->prefixes,
-			'tempCache' => $this->tempCache
-		));
+		return serialize($this->map);
 	}
 	
 	public function updateState()
@@ -46,17 +51,18 @@ class ClassLoaderStateful
 				$cacheManager = $sc->get('cache_manager');
 			}
 		}
+		elseif(isset($parameters['cache_manager'])) {
+			$cacheManager = $parameters['cache_manager'];
+		}
+		$this->cacheManager = $cacheManager;
 		// if the cache manager exists and has the cache for class loader
 		if($cacheManager && $cacheManager->hasCache(self::$cacheId)) {
 			$cache = $cacheManager->getCache(self::$cacheId);
 			if($cache->test(self::$cacheConfigId)) {
-				// get the config
-				$config = unserialize($cache->load(self::$cacheConfigId));
-				if(!empty($config) && is_array($config)) {
-					// restore the class loader config
-					$this->registerNamespaces($config['namespaces']);
-					$this->registerPrefixes($config['prefixes']);
-					$this->tempCache = array_merge($config['tempCache'], $this->tempCache);
+				// get the map
+				$map = unserialize($cache->load(self::$cacheConfigId));
+				if(!empty($map) && is_array($map)) {
+					$this->map = $map;
 					// update the state
 					$this->updateState();
 					return true;
@@ -85,11 +91,7 @@ class ClassLoaderStateful
 				$cache = $cacheManager->getCache(self::$cacheId);
 				// save the config
 				$id = self::$cacheConfigId;
-				$content = serialize(array(
-					'namespaces' => $this->namespaces,
-					'prefixes' => $this->prefixes,
-					'tempCache' => $this->tempCache
-				));
+				$content = serialize($this->map);
 				if(!$cache->save($content, $id)) {
 					throw new Exception("Can't write to cache '" . self::$classLoaderCacheId . "'.\n".var_export(array('id' => $id, 'content' => $content), true));
 				}

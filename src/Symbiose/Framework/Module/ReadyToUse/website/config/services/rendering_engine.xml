@@ -12,7 +12,7 @@
 	<parameters>
 		<!-- LISTENER configuration -->
 		<!-- ====================== -->
-		<parameter key="rendering_listener.class">Falcon\Site\Framework\RenderingListener</parameter>
+		<parameter key="rendering_listener.class">Symbiose\Framework\RenderingListener</parameter>
 		<parameter key="rendering_listener.default_view_dir">../application/views</parameter>
         <parameter key="rendering_listener.module_directory">../application/modules</parameter>
         <parameter key="rendering_listener.view_module_dir">views/scripts</parameter>
@@ -22,7 +22,7 @@
 		
 		<!-- RENDERING ENGINE configuration -->
 		<!-- ============================== -->
-        <parameter key="rendering_engine.class">Falcon\Site\Component\RenderingEngine</parameter>
+        <parameter key="rendering_engine.class">Symbiose\Component\RenderingEngine</parameter>
     </parameters>
 	<services>
 		<!-- LISTENER service -->

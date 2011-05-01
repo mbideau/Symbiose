@@ -1,9 +1,9 @@
 <?php
 
-namespace Falcon\Site\Component\Caching;
+namespace Symbiose\Component\Caching;
 
-use Falcon\Site\Component\Caching\CacheManager,
-	Falcon\Site\Component\Object\StatefulInterface
+use Symbiose\Component\Caching\CacheManager,
+	Symbiose\Component\Object\StatefulInterface
 ;
 
 class CacheManagerStateful

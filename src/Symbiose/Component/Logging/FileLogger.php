@@ -1,8 +1,8 @@
 <?php
 
-namespace Falcon\Site\Component\Logging;
+namespace Symbiose\Component\Logging;
 
-use Falcon\Site\Component\Logging\Exception\LoggingException as Exception;
+use Symbiose\Component\Logging\Exception\LoggingException as Exception;
 
 class FileLogger
 {
@@ -14,7 +14,7 @@ class FileLogger
 	const INFO = 2;
 	const DEBUG = 4;
 	
-	protected static $defaultLogDir = '../datas/logs';
+	protected static $defaultLogDir = '../data/logs';
 	protected static $defaultLogFilename = 'default.log';
 
 	protected $logDir;
@@ -63,7 +63,7 @@ class FileLogger
 	static public function directLog($message, $priority = self::DEBUG, $append = true, $filename = null, $dir = null)
 	{
 		// disable log
-		return;
+		//return;
 		
 		$filename = empty($filename) ? self::$defaultLogFilename : null;
 		if(empty($filename)) {
@@ -87,7 +87,7 @@ class FileLogger
 			throw new Exception("Log dir '$dir' is not writable");
 		}
 		$file = "$dir/$filename";
-		$needChmod = file_exists($file) && $append;
+		$needChmod = !file_exists($file) || !$append;
 		
 		// add time info at the begining of the message
 		$message = '[' . date('c') . ' ' . str_pad(preg_replace(array('#^([0-9]+)$#', '#^([0-9]+\.[0-9])$#'), array('${1}.00', '${1}0'), microtime(true)), 14, ' ', STR_PAD_LEFT) . ']' . " $message\n";

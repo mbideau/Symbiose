@@ -1,23 +1,27 @@
 <?php
 
-namespace Falcon\Site\Framework\Module;
+namespace Symbiose\Framework\Module;
 
-use Exception\ModuleException,
-	Falcon\Site\Framework\Module\Module,
+use Symbiose\Framework\Module\Exception\ModuleException as Exception,
+	Symbiose\Framework\Module\Module,
 	Symfony\Component\HttpFoundation\File\File
 ;
 
 class ModuleBuilder
 {
 	protected $module;
+	protected $logger;
 	
-	public function __construct(Module $module)
+	public function __construct(Module $module, $logger = null)
 	{
 		$this->module = $module;
+		$this->logger = $logger;
 	}
 	
 	public function build($filepath)
 	{
+		$moduleDir = basename(dirname($filepath));
+		! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': building module ...');
 		// if the file is not a string
 		if(!is_string($filepath)) {
 			throw new Exception("function __construct : parameter 'filepath' must be a string");
@@ -38,14 +42,15 @@ class ModuleBuilder
 		// according to extension
 		switch($fileExtension) {
 			case '.ini':
-				$configuration = new \Zend_Config_Ini($filepath);
+				$configuration = new \Zend\Config\Ini($filepath);
 				break;
 			case '.xml':
-				$configuration = new \Zend_Config_Xml($filepath);
+				$configuration = new \Zend\Config\Xml($filepath);
 				// if the configuration is not empty
 				if(!empty($configuration)) {
 					// version
 					$version = trim($configuration->get('version', null));
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': version is ' . $version);
 					// dependencies
 					$dependencies = $configuration->get('dependencies', array());
 					$validDependencies = array();
@@ -59,6 +64,7 @@ class ModuleBuilder
 						}
 					}
 					$dependencies = $validDependencies;
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': dependencies are ' . "\n" . print_r($dependencies, true));
 					// order
 					$order = $configuration->get('order', array());
 					$validOrder = array();
@@ -72,12 +78,16 @@ class ModuleBuilder
 						}
 					}
 					$order = $validOrder;
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': order is ' . "\n" . print_r($order, true));
 					// services
 					$servicesFile = $this->convertToAbsolutePath($configuration->get('services-file', null), $this->module->getPath());
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': services file is ' . $servicesFile);
 					// cache
 					$cacheFile = $this->convertToAbsolutePath($configuration->get('cache-file', null), $this->module->getPath());
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': cache file is ' . $cacheFile);
 					// route
 					$routeFile = $this->convertToAbsolutePath($configuration->get('route-file', null), $this->module->getPath());
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': route file is ' . $routeFile);
 					// register classes
 					$registerClasses = $configuration->get('register-classes', array());
 					$validRegisterClasses = array(
@@ -90,7 +100,7 @@ class ModuleBuilder
 							if(array_key_exists('name', $listArray) && array_key_exists('path', $listArray) && count($listArray) == 2) {
 								list($namespaceName, $namespacePath) = array_values($listArray);
 								$namespaceName = trim(ucfirst($namespaceName));
-								$namespacePath = $this->convertToAbsolutePath(trim(strtolower($namespacePath)), $this->module->getPath());
+								$namespacePath = $this->convertToAbsolutePath(trim($namespacePath), $this->module->getPath());
 								if($type == 'prefix') {
 									$validRegisterClasses['prefixes'][$namespaceName] = $namespacePath;
 								}
@@ -111,7 +121,7 @@ class ModuleBuilder
 										$namespacePath = array_key_exists('path', $namespace) ? $namespace['path'] : '';
 									}
 									$namespaceName = trim(ucfirst($namespaceName));
-									$namespacePath = $this->convertToAbsolutePath(trim(strtolower($namespacePath)), $this->module->getPath());
+									$namespacePath = $this->convertToAbsolutePath(trim($namespacePath), $this->module->getPath());
 									if(!empty($namespaceName) && !empty($namespacePath)) {
 										if($type == 'prefix') {
 											$validRegisterClasses['prefixes'][$namespaceName] = $namespacePath;
@@ -125,8 +135,10 @@ class ModuleBuilder
 						}
 					}
 					$registerClasses = $validRegisterClasses;
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': registered classes are ' . "\n" . print_r($registerClasses, true));
 					// controllers dir
 					$controllersDir = $this->convertToAbsolutePath($configuration->get('controllers-dir', null), $this->module->getPath());
+					! $this->logger ?: $this->logger->debug('ModuleBuilder-' . $moduleDir . ': controller dir is ' . $controllersDir);
 					// update the module
 					$this->module
 						->setVersion($version)
@@ -154,7 +166,7 @@ class ModuleBuilder
 			// if the path is not an absolute path
 			if(strpos($path, '/') !== 0) {
 				// it to an absolute path
-				return $absPathBase . DS. $path;
+				return $absPathBase . '/' . $path;
 			}
 		}
 		return $path;

@@ -10,7 +10,7 @@
 	"
 >
 	<parameters>
-		<parameter key="public_files_manager.class">Falcon\Site\PublicFilesManager</parameter>
+		<parameter key="public_files_manager.class">Symbiose\PublicFilesManager</parameter>
 		<parameter key="public_files_manager.staticRoot">../../static</parameter>
 		<parameter key="public_files_manager.staticHost">http://static.intranet.dev</parameter>
 		<parameter key="public_files_manager.addUploadDir">true</parameter>

@@ -1,22 +1,32 @@
 <?php
 
-namespace Falcon\Site\Component\Service\Loader;
+namespace Symbiose\Component\Service\Loader;
 
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader as BaseXmlFileLoader;
-
-defined('SERVICE_XML_FILE_LOADER_VALIDATION_FILE')
-	|| define('SERVICE_XML_FILE_LOADER_VALIDATION_FILE', LIBRARY_PATH . DS . 'Symfony' . DS . 'src' . DS . 'Symfony' . DS . 'Component' . DS . 'DependencyInjection' . DS . 'Loader' . DS . 'schema' . DS . 'dic' . DS . 'services' . DS . 'services-1.0.xsd');
 
 class XmlFileLoader
 	extends BaseXmlFileLoader
 {
+	protected $serviceSchemaBasePath;
+	protected $serviceSchemaFilename = 'services-1.0.xsd';
+	
+	public function setServiceSchemaBasePath($path)
+	{
+		$this->serviceSchemaBasePath = $path;
+	}
+	
+	protected function getServiceSchemaPath()
+	{
+		return $this->serviceSchemaBasePath . '/' . $this->serviceSchemaFilename;
+	}
+	
 	/**
      * @throws \RuntimeException         When extension references a non-existent XSD file
      * @throws \InvalidArgumentException When xml doesn't validate its xsd schema
      */
     protected function validateSchema($dom, $file)
     {
-        $schemaLocations = array('http://www.symfony-project.org/schema/dic/services' => str_replace('\\', '/', SERVICE_XML_FILE_LOADER_VALIDATION_FILE));
+        $schemaLocations = array('http://www.symfony-project.org/schema/dic/services' => $this->getServiceSchemaPath());
 
         if ($element = $dom->documentElement->getAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'schemaLocation')) {
             $items = preg_split('/\s+/', $element);

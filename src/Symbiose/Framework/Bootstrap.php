@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework;
+namespace Symbiose\Framework;
 
 class Exception extends \RuntimeException {}
 class InvalidArgumentException extends \InvalidArgumentException {}
@@ -31,10 +31,10 @@ class Bootstrap
 	protected function _initClassLoader()
 	{
 		// get class loader files
-		require $this->libraryPath . DS . 'Falcon' . DS . 'Site' . DS . 'Component' . DS . 'ClassLoader' . DS . 'Exception' . DS . 'ClassLoaderException.php';
-		require $this->libraryPath . DS . 'Falcon' . DS . 'Site' . DS . 'Component' . DS . 'ClassLoader' . DS . 'ClassLoader.php';
+		require $this->libraryPath . DS . 'Symbiose' . DS . 'Component' . DS . 'ClassLoader' . DS . 'Exception' . DS . 'ClassLoaderException.php';
+		require $this->libraryPath . DS . 'Symbiose' . DS . 'Component' . DS . 'ClassLoader' . DS . 'ClassLoader.php';
 		// instantiate
-		$classLoader = new \Falcon\Site\Component\ClassLoader\ClassLoader(/*IS_DEBUG*/false, /*IS_DEBUG ? $fileLogger : null*/null, $fileCache);
+		$classLoader = new \Symbiose\Component\ClassLoader\ClassLoader(/*IS_DEBUG*/false, /*IS_DEBUG ? $fileLogger : null*/null, $fileCache);
 		// set namespaces and prefixes
 		$classLoader->setNamespaces(array(
 			'Falcon'		=>	$this->libraryPath,
@@ -50,6 +50,6 @@ class Bootstrap
 	protected function _initCacheManager()
 	{
 		// get cache manager files
-		$cacheManager = new \Falcon\Site\Component\Caching\CacheManager(CACHE_PATH, /*IS_DEBUG*/false);
+		$cacheManager = new \Symbiose\Component\Caching\CacheManager(CACHE_PATH, /*IS_DEBUG*/false);
 	}
 }

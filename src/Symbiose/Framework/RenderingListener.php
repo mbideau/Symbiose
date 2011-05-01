@@ -1,13 +1,13 @@
 <?php
 
-namespace Falcon\Site\Framework;
+namespace Symbiose\Framework;
 
-use Falcon\Site\Component\Service\ServiceContainer,
+use Symbiose\Component\Service\ServiceContainer,
 	Symfony\Bundle\FrameworkBundle\EventDispatcher,
 	Symfony\Component\EventDispatcher\Event,
 	Symfony\Component\HttpFoundation\Request,
 	Symfony\Component\HttpFoundation\Response,
-	Falcon\Site\Component\Service\ServiceContainerAware
+	Symbiose\Component\Service\ServiceContainerAware
 ;
 
 class RenderingListener
@@ -47,7 +47,7 @@ class RenderingListener
      */
     public function register(EventDispatcher $dispatcher, $priority = 0)
     {
-        $dispatcher->connect('core.view', array($this, 'resolve'), $priority);
+        //$dispatcher->connect('core.view', array($this, 'resolve'), $priority);
     }
 	
     /**
@@ -118,7 +118,7 @@ class RenderingListener
 		$format = $format == 'html' ? 'phtml' : $format;
 		$layoutName = !empty($layoutName) && is_string($layoutName) ? strtolower($layoutName) : $this->defaultLayoutName;
 		// build the layout file path
-		$layoutFile = $this->moduleDirectory . DS . $module . DS . $this->layoutDir . DS . $layoutName . ".$format";
+		$layoutFile = $this->moduleDirectory . '/' . $module . '/' . $this->layoutDir . '/' . $layoutName . ".$format";
 		return $layoutFile;
 	}
 
@@ -137,7 +137,7 @@ class RenderingListener
 		$format = $format == 'html' ? 'phtml' : $format;
 		$viewName = !empty($viewName) && is_string($viewName) ? strtolower($viewName) : $action;
 		// build the view file path
-		$viewFile = $this->moduleDirectory . DS . $module . DS . $this->viewModuleDir . DS . $controller . DS . $viewName . ".$format";
+		$viewFile = $this->moduleDirectory . '/' . $module . '/' . $this->viewModuleDir . '/' . $controller . '/' . $viewName . ".$format";
 		return $viewFile;
 	}
 }

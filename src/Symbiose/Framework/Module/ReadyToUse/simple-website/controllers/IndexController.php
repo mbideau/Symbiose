@@ -2,7 +2,7 @@
 
 namespace Modules\SimpleWebsite\Controllers;
 
-use Falcon\Site\Framework\Controller\Controller;
+use Symbiose\Framework\Controller\Controller;
 
 class IndexController
 	extends Controller

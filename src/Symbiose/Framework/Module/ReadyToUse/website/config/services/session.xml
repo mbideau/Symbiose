@@ -14,7 +14,7 @@
 		<!-- ===================== -->
 		<parameter key="session.class">Symfony\Component\HttpFoundation\Session</parameter>
         <parameter key="session.default_locale">fr</parameter>
-        <parameter key="session.storage.class">Falcon\Site\SessionStorage</parameter>
+        <parameter key="session.storage.class">Symbiose\SessionStorage</parameter>
         <parameter key="session.storage.native.class">Symfony\Component\HttpFoundation\SessionStorage\NativeSessionStorage</parameter>
         <parameter key="session.storage.pdo.class">Symfony\Component\HttpFoundation\SessionStorage\PdoSessionStorage</parameter>
         <!-- Options -->

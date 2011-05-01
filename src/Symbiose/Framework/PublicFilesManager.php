@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework;
+namespace Symbiose\Framework;
 
 use Symfony\Component\HttpFoundation\File\File;
 
@@ -128,7 +128,7 @@ class PublicFilesManager
 			}
 		}
 		$toFilename = !empty($toFilename) ? $toFilename : basename($fromPath);
-		$toDestPath = $parentDir . DS . $toFilename;
+		$toDestPath = $parentDir . '/' . $toFilename;
 		if(!@rename($fromPath, $toDestPath)) {
 			throw new Exception("PublicFilesManager::moveFile : failed to move file '$fromPath' to '$toDestPath'");
 		}
@@ -152,31 +152,66 @@ class PublicFilesManager
 				throw new Exception("PublicFilesManager::moveUploadedFile : failed to create parent dir '$parentDir'");
 			}
 		}
-		$toDestPath = $parentDir . DS . $toFilename;
+		$toDestPath = $parentDir . '/' . $toFilename;
 		if(!@rename($fromPath, $toDestPath)) {
 			throw new Exception("PublicFilesManager::moveUploadedFile : failed to move file '$fromPath' to '$toDestPath'");
 		}
 		return $toDestPath;
 	}
 	
-	public function getFilePath($filename, $module = null, $isUploaded = false)
+	public function hasFile($filename, array $parameters = array())
 	{
 		if(empty($filename)) {
-			throw new Exception("PublicFilesManager::getFilePath : filename is empty");
+			throw new Exception("You must provide a filename");
 		}
-		$parentDir = $this->getParentDir($filename, $module, $isUploaded);
-		$filePath = $parentDir . DS . $filename;
+		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
+		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
+		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$filePath = $parentDir . '/' . $filename;
+		return file_exists($filePath);
+	}
+	
+	public function getFilePath($filename, array $parameters = array())
+	{
+		if(empty($filename)) {
+			throw new Exception("You must provide a filename");
+		}
+		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
+		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
+		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$filePath = $parentDir . '/' . $filename;
 		return $filePath;
 	}
 	
-	public function getFileUrl($filename, $module = null, $isUploaded = false)
+	public function copyFile($src, $filename = null, array $parameters = array())
 	{
-		$filePath = str_replace(
-			$this->staticRoot . DS,
-			'',
-			$this->getFilePath($filename, $module, $isUploaded)
-		);
-		return $this->staticHost . DS . $filePath;
+		if(empty($src)) {
+			throw new Exception("You must provide a source file");
+		}
+		if(!file_exists($src)) {
+			throw new Exception("Source file $src doesn't exist");
+		}
+		if(empty($filename)) {
+			$filename = basename($src);
+		}
+		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
+		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
+		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$filePath = $parentDir . '/' . $filename;
+		return @copy($src, $filePath);
+	}
+	
+	public function getUrl($filename, array $parameters = array())
+	{
+		if(empty($filename)) {
+			throw new Exception("You must provide a filename");
+		}
+		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
+		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
+		$host = $domain ? "http://static.$domain" : $this->staticHost;
+		$parentDir = $host . ($basedir ? $basedir : '');
+		$fileUrl = $parentDir . '/' . $filename;
+		return $fileUrl;
 	}
 	
 	protected function getParentDir($file, $module = null, $isUploaded = false)
@@ -205,31 +240,31 @@ class PublicFilesManager
 		$extensionGroupDir = $this->getGroupDir($extension);
 		if(!empty($module)) {
 			if($isUploaded && $this->addUploadDir) {
-				$parentDir = $module . DS . $extensionGroupDir . DS . $this->uploadDirname;
+				$parentDir = $module . '/' . $extensionGroupDir . '/' . $this->uploadDirname;
 			}
 			else {
-				$parentDir = $module . DS . $extensionGroupDir;
+				$parentDir = $module . '/' . $extensionGroupDir;
 			}
 		}
 		else {
 			if($isUploaded && $this->addUploadDir) {
-				$parentDir = $this->defaultPublicDir . DS . $extensionGroupDir . DS . $this->uploadDirname;
+				$parentDir = $this->defaultPublicDir . '/' . $extensionGroupDir . '/' . $this->uploadDirname;
 			}
 			else {
-				$parentDir = $this->defaultPublicDir . DS . $extensionGroupDir;
+				$parentDir = $this->defaultPublicDir . '/' . $extensionGroupDir;
 			}
 		}
-		return $this->staticRoot . DS . $parentDir;
+		return $this->staticRoot . '/' . $parentDir;
 	}
 	
 	public function getExtensionDirUrl($extension, $module = null, $isUploaded = false)
 	{
 		$dir = str_replace(
-			$this->staticRoot . DS,
+			$this->staticRoot . '/',
 			'',
 			$this->getExtensionDir($extension, $module, $isUploaded)
 		);
-		return $this->staticHost . DS . $dir;
+		return $this->staticHost . '/' . $dir;
 	}
 	
 	/**

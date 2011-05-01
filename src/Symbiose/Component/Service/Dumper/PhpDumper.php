@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Service\Dumper;
+namespace Symbiose\Component\Service\Dumper;
 
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper as BasePhpDumper;
 

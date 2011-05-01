@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\AccessControl\Exception;
+namespace Symbiose\Component\AccessControl\Exception;
 
 /**
  * Thrown when an error occurred in the component AccessControl

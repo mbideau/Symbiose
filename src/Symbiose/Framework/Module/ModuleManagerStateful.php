@@ -1,9 +1,9 @@
 <?php
 
-namespace Falcon\Site\Framework\Module;
+namespace Symbiose\Framework\Module;
 
-use Falcon\Site\Framework\Module\ModuleManager,
-	Falcon\Site\Component\Object\StatefulInterface
+use Symbiose\Framework\Module\ModuleManager,
+	Symbiose\Component\Object\StatefulInterface
 ;
 
 class ModuleManagerStateful
@@ -18,9 +18,7 @@ class ModuleManagerStateful
 	public function getState()
 	{
 		return serialize(array(
-			$this->modulesDirs,
-			$this->configurationFilename,
-			$this->modules,
+			array_keys($this->modules),
 			$this->bootstrapList
 		));
 	}
@@ -33,6 +31,41 @@ class ModuleManagerStateful
 	public function setState($state)
 	{
 		$this->state = $state;
+	}
+	
+	static public function getFromCache($cacheManager, $serviceContainer)
+	{
+		// if the cache manager exists and has the cache for cache manager
+		if($cacheManager && $cacheManager->hasCache(self::$cacheId)) {
+			$cache = $cacheManager->getCache(self::$cacheId);
+			if($cache->test(self::$cacheConfigId)) {
+				//$mmFile = $cache->getBackend()->getFile(self::$moduleManagerInstanceCacheId);
+				$config = unserialize($cache->load(self::$cacheConfigId));
+				if(!empty($config) && is_array($config)) {
+					$logger = $serviceContainer && $serviceContainer->has('logger') ? $serviceContainer->get('logger') : null;
+					$moduelManager = new self($logger);
+					$moduelManager
+						->setServiceContainer($serviceContainer)
+						->restoreModules($config['modules'])
+						->setBootstrapList($config['bootstrapList'])
+					;
+					// update the state
+					$moduelManager->updateState();
+					return $moduelManager;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public function restoreModules(array $modules) {
+		if(!empty($modules) && is_array($modules)) {
+			foreach($modules as $name => $path) {
+				$this->addModule($path);
+				$this->modules[$name]->setBootstraped(true);
+			}
+		}
+		return $this;
 	}
 	
 	public function restoreState(array $parameters = array())
@@ -87,10 +120,14 @@ class ModuleManagerStateful
 			if($cacheManager && $cacheManager->hasCache(self::$cacheId)) {
 				$cache = $cacheManager->getCache(self::$cacheId);
 				$id = self::$cacheConfigId;
+				$modulesPath =  array();
+				if(!empty($this->modules)) {
+					foreach($this->modules as $name => $m) {
+						$modulesPath[$name] = $m->getPath();
+					}
+				}
 				$content = serialize(array(
-					'modulesDirs' => $this->modulesDirs,
-					'configurationFilename' => $this->configurationFilename,
-					'modules' => $this->modules,
+					'modules' => $modulesPath,
 					'bootstrapList' => $this->bootstrapList
 				));
 				// save it to the cache

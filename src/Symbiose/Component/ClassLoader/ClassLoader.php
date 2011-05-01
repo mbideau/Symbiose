@@ -1,16 +1,13 @@
 <?php
 
-namespace Falcon\Site\Component\ClassLoader;
+namespace Symbiose\Component\ClassLoader;
 
 // we don't use the USE statement for cache manager to prevent cycle requirements
 // instead we check that the methods we needs, exists for the cache manager (in the set method)
-use Falcon\Site\Component\ClassLoader\Exception\ClassLoaderException as Exception;
+use Symbiose\Component\ClassLoader\Exception\ClassLoaderException as Exception;
 
 class ClassLoader
 {
-	protected static $mergedNamespacedClassesCacheId = 'namespaced_classes';
-	protected static $mergedPrefixedClassesCacheId = 'prefixed_classes';
-	
 	protected $tempCache = array();
 	
 	protected $namespaces = array();
@@ -22,26 +19,31 @@ class ClassLoader
     
     protected $envName;
     
-    public function __construct($envName, $debug = false, $logger = null)
+    public function __construct($envName, $debug = false, $cacheDir = null)
 	{
 		// Environment name
 		$this->envName = $envName;
 		// Is debug ?
 		$this->debug = $debug;
-		// Logger
-		$this->logger = $logger;
 		
 		// load compiled classes
-		$prefixedFile = CACHE_PATH . DS . 'merged-prefixed-classes.php';
-		if(file_exists($prefixedFile)) {
-			require $prefixedFile;
-		}
-		$namespacedFile = CACHE_PATH . DS . 'merged-namespaced-classes.php';
-		if(file_exists($namespacedFile)) {
-			require $namespacedFile;
+		if(!$this->debug) {
+			$prefixedFile = "$cacheDir/merged-prefixed-classes.php";
+			if(file_exists($prefixedFile)) {
+				require $prefixedFile;
+			}
+			$namespacedFile = "$cacheDir/merged-namespaced-classes.php";
+			if(file_exists($namespacedFile)) {
+				require $namespacedFile;
+			}
 		}
 	}
     
+	public function setLogger($logger)
+	{
+		$this->logger = $logger;
+	}
+	
 	public function getTempCache()
 	{
 		return $this->tempCache;
@@ -133,7 +135,7 @@ class ClassLoader
     public function register()
     {
     	// throw exceptions
-        spl_autoload_register(array($this, 'loadClass'), true);
+        spl_autoload_register(array($this, 'loadClass'), true, true);
     }
 	
     protected function isNamespace($class)
@@ -189,10 +191,10 @@ class ClassLoader
     protected function updateMergedClasses()
     {
     	if($this->cacheManager) {
-	    	!$this->logger ?: $this->logger->log("Updating merged classes ...");
+	    	! $this->logger ?: $this->logger->debug("Updating merged classes ...");
 	    	// foreach classes of the temp cacheManager
 	    	if(!empty($this->tempCache)) {
-	    		!$this->logger ?: $this->logger->log("Cache is not empty ...");
+	    		! $this->logger ?: $this->logger->debug("Cache is not empty ...");
 	    		$mergedPrefixedClassesContent = '';
 	    		$mergedNamespacedClassesContent = '';
 	    		foreach($this->tempCache as $class => $file) {
@@ -208,17 +210,17 @@ class ClassLoader
 	    			
 	    			// if it is prefixed
 	    			if($this->isPrefixed($class)) {
-	    				!$this->logger ?: $this->logger->log("Adding class '$class' to prefix content ...");
+	    				! $this->logger ?: $this->logger->debug("Adding class '$class' to prefix content ...");
 	    				$mergedPrefixedClassesContent .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', $content);
 	    			}
 	    			// namespaced
 	    			else {
-	    				!$this->logger ?: $this->logger->log("Adding class '$class' to namespace content ...");
+	    				! $this->logger ?: $this->logger->debug("Adding class '$class' to namespace content ...");
 	    				$mergedNamespacedClassesContent .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', $content);
 	    			}
 	    		}
 	    		if($mergedPrefixedClassesContent != '') {
-	    			!$this->logger ?: $this->logger->log("Caching prefix content ...");
+	    			! $this->logger ?: $this->logger->debug("Caching prefix content ...");
 		    		$content = self::stripComments($mergedPrefixedClassesContent);
 		    		// if cache file doesn't exist
 		    		if(!$this->cacheManager->hasCacheFile(self::$mergedPrefixedClassesFilename)) {
@@ -229,7 +231,7 @@ class ClassLoader
 		    		$this->cacheManager->writeCacheFile($content, true, true, self::$mergedPrefixedClassesFilename);
 	    		}
 	    		if($mergedNamespacedClassesContent != '') {
-		    		!$this->logger ?: $this->logger->log("Caching namespace content ...");
+		    		! $this->logger ?: $this->logger->debug("Caching namespace content ...");
 	    			$content = self::stripComments($mergedNamespacedClassesContent);
 	    			// if cache file doesn't exist
 		    		if(!$this->cacheManager->hasCacheFile(self::$mergedNamespacedClassesFilename)) {
@@ -311,8 +313,11 @@ class ClassLoader
     public function loadClass($class)
     {
     	try {
-			$classOri = $class;
-	    	!$this->logger ?: $this->logger->log("Loading class '$classOri' ...");
+			if(stripos($class, '\\') === 0) {
+            	$class = substr($class, 1);
+            }
+		    $classOri = $class;
+	    	! $this->logger ?: $this->logger->debug("ClassLoader : loading '$classOri' ...");
 	    	// try to get it from the temp cache
 	    	$file = $this->getClassFileFromCache($class);
 	    	if(!empty($file)/* && file_exists($file)*/) {
@@ -321,16 +326,22 @@ class ClassLoader
 	    	else {
 	    		// namespaced class name
 		        if(($pos = strripos($class, '\\')) !== false) {
-		            $namespace = substr($class, 0, $pos);
+		            ! $this->logger ?: $this->logger->debug("ClassLoader : '$classOri' is namespaced ...");
+		        	$namespace = substr($class, 0, $pos);
+		        	/*if($classOri == 'Entities\Session') {
+		        		print_r($this->namespaces);
+		        	}*/
 		            foreach ($this->namespaces as $ns => $dir) {
 		    			if (0 === strpos($namespace, $ns)) {
+		    				! $this->logger ?: $this->logger->debug("ClassLoader : '$classOri' match namespace '$ns' ...");
 		                    $class = substr($class, $pos + 1);
 		                    // architecture respected
 		                    $file = $dir.DIRECTORY_SEPARATOR.str_replace('\\', DIRECTORY_SEPARATOR, $namespace).DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
+		                    ! $this->logger ?: $this->logger->debug("ClassLoader : '$classOri' belong to file '$file' ...");
 		                    if(is_readable($file)) {
 		                    	require $file;
 		                        $this->tempCache[$classOri] = $file;
-		                        !$this->logger ?: $this->logger->log("Caching class '$classOri'");
+		                        ! $this->logger ?: $this->logger->debug("ClassLoader : caching '$classOri'");
 		                    }
 		                    // direct folder
 		                    else {
@@ -338,7 +349,7 @@ class ClassLoader
 			                    if(is_readable($file)) {
 			                    	require $file;
 			                        $this->tempCache[$classOri] = $file;
-			                        !$this->logger ?: $this->logger->log("Caching class '$classOri'");
+			                        ! $this->logger ?: $this->logger->debug("ClassLoader : caching '$classOri'");
 			                    }
 		                    }
 		                    break;
@@ -347,13 +358,14 @@ class ClassLoader
 		        }
 		        // PEAR-like class name
 		        else {
+		        	! $this->logger ?: $this->logger->debug("ClassLoader : '$classOri' is prefixed ...");
 		            foreach ($this->prefixes as $prefix => $dir) {
-		                if (0 === strpos($class, $prefix)) {
+			            if (0 === strpos($class, $prefix)) {
 		                    $file = $dir.DIRECTORY_SEPARATOR.str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
 		                    if (is_readable($file)) {
 		                    	require $file;
 		                    	$this->tempCache[$classOri] = $file;
-		                    	!$this->logger ?: $this->logger->log("Caching class '$classOri'");
+		                    	! $this->logger ?: $this->logger->debug("ClassLoader : caching '$classOri'");
 		                    }
 		                    break;
 		                }

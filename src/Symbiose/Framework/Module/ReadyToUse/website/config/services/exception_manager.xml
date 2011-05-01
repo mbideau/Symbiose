@@ -12,7 +12,7 @@
 	<parameters>
 		<!-- EXCEPTION MANAGER configuration -->
 		<!-- =============================== -->
-		<parameter key="exception_manager.class">Falcon\Site\Component\ExceptionManager</parameter>
+		<parameter key="exception_manager.class">Symbiose\Component\ExceptionManager</parameter>
 	</parameters>
 	<services>
 		<!-- EXCEPTION MANAGER service -->

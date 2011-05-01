@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\AccessControl;
+namespace Symbiose\Component\AccessControl;
 
 class Role
 	implements \Zend_Acl_Role_Interface

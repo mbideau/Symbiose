@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Rendering\Exception;
+namespace Symbiose\Component\Rendering\Exception;
 
 /**
  * Thrown when an error occurred in the component Rendering

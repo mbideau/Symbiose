@@ -13,15 +13,15 @@
 		<!-- ORM configuration -->
         <!-- ================= -->
         <!-- Doctrine Common -->
-        <!--<parameter key="doctrine.common.cache.class">Doctrine\Common\Cache\ArrayCache</parameter>-->
-        <parameter key="doctrine.common.cache.class">Modules\Website\Classes\DoctrineFileCache</parameter>
+        <parameter key="doctrine.common.cache.class">Doctrine\Common\Cache\ArrayCache</parameter>
+        <!--<parameter key="doctrine.common.cache.class">Modules\Website\Classes\DoctrineFileCache</parameter>-->
 		<parameter key="doctrine.common.event_manager.class">Doctrine\Common\EventManager</parameter>
 		
         <!-- Doctrine ORM -->
 		<parameter key="doctrine.orm.configuration.class">Doctrine\ORM\Configuration</parameter>
 		<parameter key="doctrine.orm.configuration.param.proxies.dir">../datas/db/proxies</parameter>
 		<parameter key="doctrine.orm.configuration.param.proxies.namespace">Proxies</parameter>
-		<parameter key="doctrine.orm.configuration.param.proxies.autogenerate">%kernel.debug%</parameter>
+		<parameter key="doctrine.orm.configuration.param.proxies.autogenerate">1</parameter>
 		<parameter key="doctrine.orm.configuration.param.entities.namespace">Entities</parameter>
 		<parameter key="doctrine.orm.mapping.driver.class">Doctrine\ORM\Mapping\Driver\AnnotationDriver</parameter>
 		<parameter key="doctrine.orm.mapping.driver.annotation.reader.class">Doctrine\Common\Annotations\AnnotationReader</parameter>

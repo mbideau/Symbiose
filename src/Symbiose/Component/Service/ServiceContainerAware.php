@@ -1,9 +1,9 @@
 <?php
 
-namespace Falcon\Site\Component\Service;
+namespace Symbiose\Component\Service;
 
-use Falcon\Site\Component\Service\ServiceContainerAwareInterface,
-	Falcon\Site\Component\Service\Exception\ServiceException as Exception;
+use Symbiose\Component\Service\ServiceContainerAwareInterface,
+	Symbiose\Component\Service\Exception\ServiceException as Exception;
 ;
 
 abstract class ServiceContainerAware
@@ -44,7 +44,10 @@ abstract class ServiceContainerAware
         	
         	// if the service is null
         	if(!$this->$propertyName) {
-        		$this->$propertyName = $this->serviceContainer->$name();
+        		$serviceName = $this->getProperServiceName($serviceName);
+        		if($this->serviceContainer->has($serviceName)) {
+        			$this->$propertyName = $this->serviceContainer->get($serviceName);
+        		}
         	}
         	
         	return $this->$propertyName;
@@ -54,4 +57,9 @@ abstract class ServiceContainerAware
         	throw new Exception("function __call : method '$name' is undefined");
         }
     }
+    
+    public function getProperServiceName($name)
+	{
+		return strtolower(preg_replace('#^_#', '', preg_replace('#[A-Z]#', '_\0', $name)));
+	}
 }

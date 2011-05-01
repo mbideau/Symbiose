@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Object;
+namespace Symbiose\Component\Object;
 
 interface StatefulInterface
 {

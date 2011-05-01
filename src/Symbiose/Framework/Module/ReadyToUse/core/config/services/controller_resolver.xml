@@ -12,7 +12,7 @@
 	<parameters>
 		<!-- CONTROLLER RESOLVER configuration -->
 		<!-- ================================= -->
-		<parameter key="controller_resolver.class">Falcon\Site\Framework\Controller\ControllerResolver</parameter>
+		<parameter key="controller_resolver.class">Symbiose\Framework\Controller\ControllerResolver</parameter>
 	</parameters>
 	
 	<services>

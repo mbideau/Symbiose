@@ -1,8 +1,8 @@
 <?php
 
-namespace Falcon\Site\Component\Object;
+namespace Symbiose\Component\Object;
 
-use Falcon\Site\Component\Object\Exception\ObjectException as Exception;
+use Symbiose\Component\Object\Exception\ObjectException as Exception;
 
 abstract class PublicAccess
 {

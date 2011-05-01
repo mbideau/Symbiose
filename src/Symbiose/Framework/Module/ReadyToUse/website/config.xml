@@ -44,6 +44,7 @@
 		<module name="simple-website" position="after" />
 	</order>
 	<register-classes>
+		<namespace name="Entities" path="entities"/>
 		<namespace name="Modules\Website\Classes" path="classes"/>
 	</register-classes>
 	<cache-file>config/caching.xml</cache-file>

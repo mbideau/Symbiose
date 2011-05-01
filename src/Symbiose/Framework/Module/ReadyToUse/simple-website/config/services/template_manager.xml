@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://www.symfony-project.org/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:doctrine="http://www.symfony-project.org/schema/dic/doctrine"
+	xmlns:zend="http://www.symfony-project.org/schema/dic/zend"
+	xsi:schemaLocation="
+		http://www.symfony-project.org/schema/dic/services http://www.symfony-project.org/schema/dic/services/services-1.0.xsd
+		http://www.symfony-project.org/schema/dic/doctrine http://www.symfony-project.org/schema/dic/doctrine-1.0.xsd
+		http://www.symfony-project.org/schema/dic/zend http://www.symfony-project.org/schema/dic/zend-1.0.xsd
+	"
+>
+	<parameters>
+		<!-- TEMPLATE MANAGER configuration -->
+		<!-- ============================== -->
+		<parameter key="twig_loader.class">Twig_Loader_Filesystem</parameter>
+		<parameter key="twig_loader.dir">../datas/templates/</parameter>
+		<parameter key="twig_environment.class">Symbiose\Component\Rendering\TemplateManager</parameter>
+		<parameter key="twig_environment.cacheDir">../datas/templates/cache</parameter>
+	</parameters>
+	<services>
+		<!-- TEMPLATE MANAGER service -->
+		<!-- ======================== -->
+		<service id="twig_loader" class="%twig_loader.class%">
+			<argument type="string">%twig_loader.dir%</argument>
+		</service>
+		<service id="twig_environment" class="%twig_environment.class%">
+			<argument type="service" id="twig_loader" />
+			<argument type="collection">
+				<argument type="string" key="cache">%twig_environment.cacheDir%</argument>
+			</argument>
+		</service>
+		<service id="template_manager" alias="twig_environment" />
+	</services>
+</container>

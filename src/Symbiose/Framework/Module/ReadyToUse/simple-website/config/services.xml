@@ -11,6 +11,7 @@
 >
 	<imports>
 		<import resource="services/router.xml" />
+		<import resource="services/template_manager.xml" />
 	</imports>
 	<parameters>
 		<!-- Request and Response -->

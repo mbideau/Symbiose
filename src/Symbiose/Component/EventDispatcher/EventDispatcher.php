@@ -1,10 +1,10 @@
 <?php
 
-namespace Falcon\Site\Component\EventDispatcher;
+namespace Symbiose\Component\EventDispatcher;
 
 use Symfony\Bundle\FrameworkBundle\EventDispatcher as BaseEventDispatcher,
-	Falcon\Site\Component\Service\ServiceContainerAwareInterface,
-	Falcon\Site\Component\Service\ServiceContainer
+	Symbiose\Component\Service\ServiceContainerAwareInterface,
+	Symbiose\Component\Service\ServiceContainer
 ;
 
 class EventDispatcher

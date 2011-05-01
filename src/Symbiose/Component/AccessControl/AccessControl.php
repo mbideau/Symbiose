@@ -1,12 +1,12 @@
 <?php
 
-namespace Falcon\Site\Component\AccessControl;
+namespace Symbiose\Component\AccessControl;
 
 use Entities\AclRole, Entities\AclResource, Entities\AclRule,
 	Symfony\Component\EventDispatcher\Event,
 	Symfony\Component\HttpFoundation\Request,
-	Falcon\Site\Component\Service\ServiceContainerAware,
-	Falcon\Site\Component\AccessControl\Exception\AccessControlException as Exception
+	Symbiose\Component\Service\ServiceContainerAware,
+	Symbiose\Component\AccessControl\Exception\AccessControlException as Exception
 ;
 
 class AccessControl
@@ -74,11 +74,11 @@ class AccessControl
 			'matching resource' => $this->getMatchingResource($resource, $request)
 		), true);*/
 		if(!$this->acl->hasRole($role)) {
-			throw new Exception("Falcon\Site\AccessControl::check : role '$role' doesn't exists");
+			throw new Exception("Symbiose\AccessControl::check : role '$role' doesn't exists");
 		}
 		if(!$this->acl->has($resource)) {
 			$resource = $this->getMatchingResource($resource, $request);
-			//throw new Exception("Falcon\Site\AccessControl::check : resource '$resource' doesn't exist");
+			//throw new Exception("Symbiose\AccessControl::check : resource '$resource' doesn't exist");
 		}
 		return $this->acl->isAllowed($role, $resource, 'use');
 	}

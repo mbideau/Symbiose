@@ -16,8 +16,8 @@
 		
 		<!-- ROUTER configuration -->
 		<!-- ==================== -->
-		<parameter key="router.class">Falcon\Site\Component\Routing\RouterStateful</parameter>
-		<parameter key="router.loader.class">Falcon\Site\Component\Routing\Loader\XmlFileLoader</parameter>
+		<parameter key="router.class">Symbiose\Component\Routing\RouterStateful</parameter>
+		<parameter key="router.loader.class">Symbiose\Component\Routing\Loader\XmlFileLoader</parameter>
 		<parameter key="router.options.matcher_cache_class">RouterUrlMatcherCache</parameter>
 		<parameter key="router.options.generator_cache_class">RouterUrlGeneratorCache</parameter>
 	</parameters>

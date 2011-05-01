@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework\Module;
+namespace Symbiose\Framework\Module;
 
 interface ModuleManagerInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component;
+namespace Symbiose\Component;
 
 class Kernel
 {

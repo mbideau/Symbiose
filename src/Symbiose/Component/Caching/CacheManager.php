@@ -1,14 +1,15 @@
 <?php
 
-namespace Falcon\Site\Component\Caching;
+namespace Symbiose\Component\Caching;
 
-use Falcon\Site\Component\Caching\CacheManagerInterface,
-	Falcon\Site\Component\Service\ServiceMergeableInterface,
-	Falcon\Site\Component\Caching\Exception\CachingException as Exception
+use Symbiose\Component\Caching\CacheManagerInterface,
+	Symbiose\Component\Service\ServiceMergeableInterface,
+	Symbiose\Component\Caching\Exception\CachingException as Exception,
+	Zend\Cache\Manager as BaseCacheManager
 ;
 
 class CacheManager
-	extends \Zend_Cache_Manager
+	extends BaseCacheManager
 	implements CacheManagerInterface, ServiceMergeableInterface
 {
 	protected $debug;
@@ -28,7 +29,7 @@ class CacheManager
 		}
 		
 		// load config from xml file
-		$config = new \Zend_Config_Xml($file);
+		$config = new \Zend\Config\Xml($file);
 		$config = $config->toArray();
 		
 		array_walk_recursive($config, create_function('&$v, $k', 'if($k == "cache_dir"){ $v = realpath($v); }'));

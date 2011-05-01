@@ -2,13 +2,13 @@
 
 namespace Modules\SimpleWebsite\Listeners;
 
-use Falcon\Site\Framework\Exception\Exception,
+use \RuntimeException as Exception,
 	Symfony\Bundle\FrameworkBundle\EventDispatcher,
 	Symfony\Component\EventDispatcher\Event,
 	Symfony\Component\HttpKernel\HttpKernelInterface,
 	Symfony\Component\HttpKernel\Exception\FlattenException,
 	Symfony\Component\HttpFoundation\Request,
-	Falcon\Site\Component\Service\ServiceContainerAware
+	Symbiose\Component\Service\ServiceContainerAware
 ;
 
 class ExceptionListener
@@ -40,10 +40,10 @@ class ExceptionListener
 
         $request = $event->getParameter('request');
         $exception = $event->getParameter('exception');
-        \Falcon\Site\Component\Debug::dump(array(
+        echo '<pre>' . var_export(array(
         	'Exception message' => $exception->getMessage(),
         	'Exception trace' => $exception->getTraceAsString()
-        ));
+        ), true) . '</pre>';
         if($this->getExceptionManagerService()) {
         	$controller = $this->getExceptionManagerService()->getExceptionRedirection(get_class($exception));
         	

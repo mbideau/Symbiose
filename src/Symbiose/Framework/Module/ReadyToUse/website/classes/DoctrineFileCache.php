@@ -3,7 +3,7 @@
 namespace Modules\Website\Classes;
 
 use Doctrine\Common\Cache\AbstractCache;
-use Falcon\Site\Component\Caching\CacheManager; 
+use Symbiose\Component\Caching\CacheManager; 
 
 class DoctrineFileCache
 	extends AbstractCache

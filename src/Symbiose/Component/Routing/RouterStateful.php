@@ -1,11 +1,11 @@
 <?php
 
-namespace Falcon\Site\Component\Routing;
+namespace Symbiose\Component\Routing;
 
-use Falcon\Site\Component\Routing,
+use Symbiose\Component\Routing,
 	Symfony\Component\Routing\Loader\LoaderInterface,
-	Falcon\Site\Component\Caching\CacheManagerInterface as CacheManager,
-	Falcon\Site\Component\Object\StatefulInterface,
+	Symbiose\Component\Caching\CacheManagerInterface as CacheManager,
+	Symbiose\Component\Object\StatefulInterface,
 	Symfony\Component\Routing\RouteCollection
 ;
 

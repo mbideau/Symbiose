@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\ClassLoader;
+namespace Symbiose\Component\ClassLoader;
 
 interface ClassLoaderInterface
 {

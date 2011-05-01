@@ -1,8 +1,8 @@
 <?php
 
-namespace Falcon\Site\Component\Caching;
+namespace Symbiose\Component\Caching;
 
-use Falcon\Site\Component\Caching\Exception\CachingException as Exception;
+use Symbiose\Component\Caching\Exception\CachingException as Exception;
 
 class FileCache
 {

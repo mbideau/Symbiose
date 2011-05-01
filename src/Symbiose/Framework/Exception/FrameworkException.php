@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework\Exception;
+namespace Symbiose\Framework\Exception;
 
 /**
  * Thrown when an error occurred in the component Framework

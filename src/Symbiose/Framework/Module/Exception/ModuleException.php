@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Framework\Module\Exception;
+namespace Symbiose\Framework\Module\Exception;
 
 /**
  * Thrown when an error occurred in the component Module

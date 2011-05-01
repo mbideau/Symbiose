@@ -1,8 +1,8 @@
 <?php
 
-namespace Falcon\Site\Component\Service;
+namespace Symbiose\Component\Service;
 
-use Falcon\Site\Component\Service\ServiceContainer;
+use Symbiose\Component\Service\ServiceContainer;
 
 interface ServiceContainerAwareInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\ClassLoader\Exception;
+namespace Symbiose\Component\ClassLoader\Exception;
 
 /**
  * Thrown when an error occurred in the component ClassLoader

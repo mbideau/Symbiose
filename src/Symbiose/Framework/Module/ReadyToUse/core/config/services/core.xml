@@ -24,7 +24,7 @@
 		<parameter key="response.class">Symfony\Component\HttpFoundation\Response</parameter>
 		
 		<!-- Controller and modules -->
-		<parameter key="controller_resolver.class">Falcon\Site\Framework\Controller\ControllerResolver</parameter>
+		<parameter key="controller_resolver.class">Symbiose\Framework\Controller\ControllerResolver</parameter>
 		
 		<!--  Error and Exception handler -->
 		<!--

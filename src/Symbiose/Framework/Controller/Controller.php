@@ -1,46 +1,25 @@
 <?php
 
-namespace Falcon\Site\Framework\Controller;
+namespace Symbiose\Framework\Controller;
 
 use Symfony\Component\HttpFoundation\Request,
-	Falcon\Site\Component\Service\ServiceContainerAware
+	Symbiose\Component\Service\ServiceContainerAware
 ;
 
 class Controller
 	extends ServiceContainerAware
 {
-	protected $sessionService;
 	protected $request;
-	protected $parameters = array();
-
+	protected $loggerService;
+	
 	function __construct(Request $request)
 	{
 		$this->request = $request;
-		$this->parameters = $this->request->attributes->all();
-	}
-    
-	protected function getParameters()
-	{
-		return $this->parameters;
 	}
 	
-	protected function addParameter($key, $value, $overwrite = true)
-	{
-		if(!array_key_exists($key, $this->parameters) || $overwrite) {
-			$this->parameters[$key] = $value;
-		}
-	}
-	
-	protected function getParameter($key, $default = null)
-	{
-		if(array_key_exists($key, $this->parameters)) {
-			return $this->parameters[$key];
-		}
-		return $default;
-	}
-
 	public function createResponse($content = '', $status = 200, array $headers = array())
 	{
+		! $this->getLoggerService() ?: $this->getLoggerService()->info('Controller: creating response : status: ' . $status . ', content: ' . $content); 
 		$response = $this->serviceContainer->get('response');
 		$response->setContent($content);
 		$response->setStatusCode($status);
@@ -55,48 +34,25 @@ class Controller
 	 */
 	public function redirect($url, $status = 302)
 	{
+		! $this->getLoggerService() ?: $this->getLoggerService()->info('Controller: redirecting (status: ' . $status . ') to ' . $url);
 		$response = $this->serviceContainer->get('response');
 		$response->setStatusCode($status);
 		$response->headers->set('Location', $url);
 		return $response;
 	}
 
-	/**
-	 * Renders a view.
-	 *
-	 * @param string   $view       The view name
-	 * @param array    $parameters An array of parameters to pass to the view
-	 * @param Response $response   A response instance
-	 *
-	 * @return Response A Response instance
-	 */
-	public function render($layout = null, $useLayout = null)
+	public function render($content = '')
 	{
-		$parameters = array_merge(
-			$this->getParameters(),
-			array('flash_messages' => (array) $this->getSessionService()->getFlashMessages())
-		);
-		if($useLayout === null) {
-			//$useLayout = !$this->request->isXmlHttpRequest();
-			$useLayout = (!array_key_exists('format', $parameters) || $parameters['format'] == 'html');
-		}
-		/*$response = $this->serviceContainer->get('response');
-		$response->setContent(
-			$this->serviceContainer
-				->get('rendering_engine')->render($parameters, $layout, $useLayout)
-		);
-		return $response;
-		*/
-		return array(
-			'useView'	=> true,
-			'useLayout' => $useLayout,
-			'layoutName' => $layout,
-			'parameters' => $parameters
-		);
+		return $this->createResponse($content);
 	}
 	
-	protected function getUrl(array $parameters = array())
+	protected function getUrl(array $parameters = array(), $absolute = false)
 	{
+		$baseUrl = $this->request->getBasePath();
+		if($absolute) {
+			$baseUrl = $this->request->getHttpHost() . $baseUrl;
+		}
+		
 		$tokens = array();
 		
 		$components = array_intersect_key(
@@ -112,19 +68,19 @@ class Controller
 		
 		// root
 		if(empty($components)) {
-			return '/';
+			return $baseUrl . '/';
 		}
 		// action
 		if(array_key_exists('action', $parameters)) {
 			$tokens['action'] = $parameters['action'];
 			if(!array_key_exists('controller', $parameters)) {
-				$tokens['controller'] = $this->getParameter('controller');
+				$tokens['controller'] = $this->request->get('controller');
 			}
 			else {
 				$tokens['controller'] = $parameters['controller'];
 			}
 			if(!array_key_exists('module', $parameters)) {
-				$tokens['module'] = $this->getParameter('module');
+				$tokens['module'] = $this->request->get('module');
 			}
 			else {
 				$tokens['module'] = $parameters['module'];
@@ -134,7 +90,7 @@ class Controller
 		else if(array_key_exists('controller', $parameters)) {
 			$tokens['controller'] = $parameters['controller'];
 			if(!array_key_exists('module', $parameters)) {
-				$tokens['module'] = $this->getParameter('module');
+				$tokens['module'] = $this->request->get('module');
 			}
 			else {
 				$tokens['module'] = $parameters['module'];
@@ -149,14 +105,6 @@ class Controller
 			$format = '.' . $parameters['format'];    		
 		}
 		krsort($tokens);
-		return '/' . implode('/', $tokens) . (isset($format) ? $format : '/');
-	}
-	
-	protected function resetSession()
-	{
-		$this->getSessionService()->setAttributes(array(
-			'_flash'   => array(),
-			'_locale'  => $this->getSessionService()->get('_locale', ''),
-		));
+		return $baseUrl . '/' . implode('/', $tokens) . (isset($format) ? $format : '/');
 	}
 }

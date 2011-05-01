@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Logging;
+namespace Symbiose\Component\Logging;
 
 //require_once 'Zend/Log.php';
 use Symfony\Component\HttpKernel\Log\LoggerInterface;

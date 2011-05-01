@@ -15,6 +15,12 @@
 		<default key="module">simple-website</default>
 		<default key="format">html</default>
 	</route>
+	<route id="hello_controller_with_template" pattern="/hello/with-template/:name/">
+		<default key="controller">hello</default>
+		<default key="action">with-template</default>
+		<default key="module">simple-website</default>
+		<default key="format">html</default>
+	</route>
 	<route id="hello_controller" pattern="/hello/:name/">
 		<default key="controller">hello</default>
 		<default key="action">index</default>

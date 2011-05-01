@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Logging\Exception;
+namespace Symbiose\Component\Logging\Exception;
 
 /**
  * Thrown when an error occurred in the component Logging

@@ -1,27 +1,43 @@
 <?php
 
-namespace Falcon\Site\Framework\Module;
+namespace Symbiose\Framework\Module;
 
-use Falcon\Site\Framework\Module\ModuleManagerInterface,
-	Falcon\Site\Framework\Module\Exception\ModuleException as Exception,
-	Falcon\Site\Framework\Module\Module,
-	Falcon\Site\Component\Service\ServiceContainerAware
+use Symbiose\Framework\Module\ModuleManagerInterface,
+	Symbiose\Framework\Module\Exception\ModuleException as Exception,
+	Symbiose\Framework\Module\Module,
+	Symbiose\Component\Service\ServiceContainerAware
 ;
 
 class ModuleManager
 	extends ServiceContainerAware
 	implements ModuleManagerInterface
 {
-	protected $modulesDirs = array();
 	protected $configurationFilename = 'config.xml';
+	protected $modulesDirs = array();
 	protected $modules = array();
 	protected $registeredModules = array();
 	protected $bootstrapList = array();
+	protected $logger;
+	
+	public function __construct($logger = null)
+	{
+		$this->logger = $logger;
+	}
+	
+	public function getModules()
+	{
+		return $this->modules;
+	}
+	
+	public function getRegisteredModules()
+	{
+		return $this->registeredModules;
+	}
 	
 	public function getProperModuleName($module)
 	{
 		return ucfirst(preg_replace_callback(
-			'|[-_](\S)|',
+			'|[-_.](\S)|',
 			create_function(
 				'$matches',
 				'return ucfirst($matches[1]);'
@@ -41,7 +57,7 @@ class ModuleManager
 		return $this->get($moduleName)->getControllerPath($controllerFilename);
 	}
 	
-	protected function get($moduleName)
+	public function get($moduleName)
 	{
 		$module = $this->getProperModuleName($moduleName);
 		if(empty($module)) {
@@ -68,7 +84,7 @@ class ModuleManager
 			'bootstrapList'
 		);
 	}
-	
+	/*
 	public function updateModulesServiceContainer()
 	{
 		if(is_array($this->modules)) {
@@ -78,7 +94,7 @@ class ModuleManager
 		}
 		return $this;
 	}
-	
+	*/
 	public function setModulesDirs(array $modulesDirs)
 	{
 		$this->modulesDirs = $modulesDirs;
@@ -105,38 +121,56 @@ class ModuleManager
 		return $this;
 	}
 	
+	public function setBootstrapList(array $list)
+	{
+		$this->bootstrapList = $list;
+		return $this;
+	}
+	
 	public function loadModules()
 	{
 		// if the bootstrap list is not already defined
 		if(empty($this->bootstrapList)) {
+			! $this->logger ?: $this->logger->debug('ModuleManager: bootstrap list not available');
 			// add modules from modules dirs
+			! $this->logger ?: $this->logger->debug('ModuleManager: loading registered modules dirs ...');
 			foreach($this->modulesDirs as $dir) {
+				! $this->logger ?: $this->logger->debug('ModuleManager: loading module dir : ' . $dir . ' ...');
 				foreach(new \DirectoryIterator($dir) as $fileInfo) {
 					if(!$fileInfo->isDot() || strpos($fileInfo->getFilename(), '.') !== 0) {
-				    	$this->addModule($fileInfo->getRealPath());
+						$modulePath = $fileInfo->getRealPath();
+						! $this->logger ?: $this->logger->debug('ModuleManager: adding module : ' . $modulePath . ' ...');
+				    	$this->addModule($modulePath);
 					}
 				}
 			}
 			
 			// add registered modules
+			! $this->logger ?: $this->logger->debug('ModuleManager: loading registered modules ...');
 			if(!empty($this->registeredModules)) {
 				foreach($this->registeredModules as $path) {
+					! $this->logger ?: $this->logger->debug('ModuleManager: adding module : ' . $path . ' ...');
 					$this->addModule($path);
 				}
 			}
 			
 			// check dependencies
+			! $this->logger ?: $this->logger->debug('ModuleManager: checking dependencies ...');
 			foreach($this->modules as $module) {
 				$this->checkDependencies($module);
 			}
 		
 			// get the bootstrap list
+			! $this->logger ?: $this->logger->debug('ModuleManager: building bootstrap list ...');
 			$this->bootstrapList = $this->buildBootstrapList();
+			! $this->logger ?: $this->logger->debug('ModuleManager: bootstrap list is ' . var_export($this->bootstrapList, true));
 		}
 		
 		// bootstrap modules (if bootstrapt list is not empty)
 		if(!empty($this->bootstrapList)) {
+			! $this->logger ?: $this->logger->debug('ModuleManager: bootstraping ...');
 			foreach($this->bootstrapList as $moduleName) {
+				! $this->logger ?: $this->logger->debug('ModuleManager: bootstraping module ' . $moduleName . ' ...');
 				// get module
 				$module = $this->modules[$moduleName];
 				// bootstrap it
@@ -149,14 +183,17 @@ class ModuleManager
 	{
 		// build the boostrap list from the modules list
 		$bootstrapList = array_keys($this->modules);
+		! $this->logger ?: $this->logger->debug('ModuleManager: initial bootstrap list is <pre>' . var_export($bootstrapList, true) . '</pre>');
 		// for each module
 		foreach($this->modules as $moduleName => $module) {
 			// get module order
 			$order = $module->getOrder();
+			! $this->logger ?: $this->logger->debug('ModuleManager: placing module ' . $moduleName . ' with order : ' . var_export($order, true));
 			// if an order is specified
 			if(!empty($order)) {
 				// foreach module position
 				foreach($order as $refName => $refPosition) {
+					$refName = $this->getProperModuleName($refName);
 					// if the module is added
 					if(array_key_exists($refName, $this->modules)) {
 						// get the module
@@ -178,6 +215,7 @@ class ModuleManager
 						switch($refPosition) {
 							case 'before':
 								if($moduleIndex > $refIndex) {
+									! $this->logger ?: $this->logger->debug('ModuleManager: placing module ' . $moduleName . '[' . $moduleIndex . '] before module ' . $refName  . '[' . $refIndex . ']');
 									// remove the module
 									array_splice($bootstrapList, $moduleIndex, 1);
 									// put the module just before the refered one
@@ -186,16 +224,20 @@ class ModuleManager
 								break;
 							case 'after':
 								if($moduleIndex < $refIndex) {
+									! $this->logger ?: $this->logger->debug('ModuleManager: placing module ' . $moduleName . '[' . $moduleIndex . '] after module ' . $refName  . '[' . $refIndex . ']');
 									// remove the module
 									array_splice($bootstrapList, $moduleIndex, 1);
 									// put the module just after the refered one
-									array_splice($bootstrapList, $refIndex, 1, array($refName, $moduleName));
+									array_splice($bootstrapList, $refIndex, 0, $moduleName);
 								}
 								break;
 							default:
 								throw new Exception("function buildBootstrapList : position '$refPosition' is invalid for order of the module '$moduleName'");
 								break;
 						}
+					}
+					else {
+						throw new Exception("function buildBootstrapList : module $refName is missing, and module $moduleName refers to it");
 					}
 				}
 			}
@@ -210,13 +252,13 @@ class ModuleManager
 			throw new Exception("function addModule : module path is empty");
 		}
 		// if module dir doesn't exist
-		if(!is_dir($modulePath)) {
-			throw new Exception("function addModule : module directory '$modulePath' doesn't exist");
-		}
+		//if(!is_dir($modulePath)) {
+		//	throw new Exception("function addModule : module directory '$modulePath' doesn't exist");
+		//}
 		// get the module name
 		$moduleName = $this->getModuleName($modulePath);
 		// if the module is already added
-		if(in_array($moduleName, array_keys($this->modules))) {
+		if(isset($moduleName, $this->modules[$moduleName])) {
 			throw new Exception("function addModule : module '$moduleName' is already added");
 		}
 		/*
@@ -228,13 +270,16 @@ class ModuleManager
 		$this->pendingModuleToBeLoaded[] = $moduleName;
 		*/
 		// build the configuration file
-		$configurationFilePath = $modulePath . DS . $this->configurationFilename;
+		$configurationFilePath = $modulePath . '/' . $this->configurationFilename;
 		// get a module instance
-		$module = new Module($moduleName, $modulePath);
+		//$module = new Module($moduleName, $modulePath);
+		$moduleClassname = 'Modules\\' . $moduleName;
+		include $modulePath . '/module.php';
+		$module = new $moduleClassname;
 		// get a module builder
-		$moduleBuilder = new ModuleBuilder($module);
+		//$moduleBuilder = new ModuleBuilder($module, $this->logger);
 		// build the module from the configuration file
-		$moduleBuilder->build($configurationFilePath);
+		//$moduleBuilder->build($configurationFilePath);
 		// set it the service container
 		$module->setServiceContainer($this->serviceContainer);
 		// add it
@@ -308,10 +353,10 @@ class ModuleManager
 		// according to extension
 		switch($configurationFileExtension) {
 			case '.ini':
-				$configuration = new \Zend_Config_Ini($filepath);
+				$configuration = new \Zend\Config\Ini($filepath);
 				break;
 			case '.xml':
-				$configuration = new \Zend_Config_Xml($filepath);
+				$configuration = new \Zend\Config\Xml($filepath);
 				break;
 			// extension is not ini or xml
 			default:

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <caching>
 	<router>
+		<frontendBackendAutoload>1</frontendBackendAutoload>
 		<frontend>
 			<name>Core</name>
 			<options>
@@ -11,7 +12,8 @@
 			</options>
 		</frontend>
 		<backend>
-			<name>File</name>
+			<customBackendNaming>1</customBackendNaming>
+			<name>Symbiose\Component\Caching\Backend\File</name>
 			<options>
 				<cache_dir>../datas/cache</cache_dir>
 		        <file_locking>1</file_locking>

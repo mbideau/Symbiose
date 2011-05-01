@@ -1,6 +1,6 @@
 <?php
 
-namespace Falcon\Site\Component\Service;
+namespace Symbiose\Component\Service;
 
 interface ServiceMergeableInterface
 {

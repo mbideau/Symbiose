@@ -7,7 +7,7 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface,
 	Symfony\Bundle\FrameworkBundle\EventDispatcher,
 	Symfony\Component\Routing\RouterInterface,
 	Symfony\Component\HttpKernel\HttpKernelInterface,
-	Falcon\Site\Component\Service\ServiceContainerAware
+	Symbiose\Component\Service\ServiceContainerAware
 ;
 
 /**

@@ -1,11 +1,16 @@
 <?php
 
-namespace Falcon\Site\Component;
+namespace Symbiose\Component;
 
-use Falcon\Site\Component\Rendering\Exception\RenderingException as Exception;
+use Symbiose\Component\Rendering\Exception\RenderingException as Exception;
 
 class RenderingEngine
 {
+	public function getTemplate($id, $file = null)
+	{
+		
+	}
+	
 	public function render($filePath, array $parameters = array(), $content = null)
 	{
 		if(empty($filePath)) {

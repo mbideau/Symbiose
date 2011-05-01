@@ -12,7 +12,7 @@
 	<parameters>
 		<!-- LOGGER configuration -->
 		<!-- ==================== -->
-		<parameter key="logger.class">Falcon\Site\Component\Logging\Logger</parameter>
+		<parameter key="logger.class">Symbiose\Component\Logging\Logger</parameter>
 		<!-- error -->
 		<parameter key="logger.error.file">../datas/logs/application-error.log</parameter>
 		<parameter key="logger.error.writer.class">Zend_Log_Writer_Stream</parameter>

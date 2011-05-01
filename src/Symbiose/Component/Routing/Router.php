@@ -1,11 +1,11 @@
 <?php
 
-namespace Falcon\Site\Component\Routing;
+namespace Symbiose\Component\Routing;
 
 use Symfony\Component\Routing\Router as BaseRouter,
 	Symfony\Component\Routing\Loader\LoaderInterface,
-	Falcon\Site\Component\Caching\CacheManagerInterface as CacheManager,
-	Falcon\Site\Component\Routing\Exception\RoutingException as Exception,
+	Symbiose\Component\Caching\CacheManagerInterface as CacheManager,
+	Symbiose\Component\Routing\Exception\RoutingException as Exception,
 	Symfony\Component\Routing\RouteCollection,
 	Symfony\Component\Routing\Resource\FileResource
 ;
@@ -91,9 +91,12 @@ class Router
             $this->updateCache($class, $dumper->dump($options));
         }
 
-        $classContent = $this->getFromCache($class);
-        //@todo FIXME use require instead of eval
-        eval($classContent);
+    	if(!class_exists($class)) {
+        	$classFile = $this->getFromCache($class, true);
+        	if(file_exists($classFile)) {
+        		include $classFile;
+        	}
+        }
 
         return $this->matcher = new $class($this->context, $this->defaults);
     }
@@ -125,9 +128,12 @@ class Router
             $this->updateCache($class, $dumper->dump($options));
         }
 
-        $classContent = $this->getFromCache($class);
-        //@todo FIXME use require instead of eval
-        eval($classContent);
+        if(!class_exists($class)) {
+        	$classFile = $this->getFromCache($class, true);
+        	if(file_exists($classFile)) {
+        		include $classFile;
+        	}
+        }
 
         return $this->generator = new $class($this->context, $this->defaults);
     }
@@ -137,7 +143,7 @@ class Router
 		return strtolower(preg_replace('#[^a-zA-Z0-9_]+#', '', $id));
 	}
     
-    protected function getFromCache($class)
+    protected function getFromCache($class, $returnFile = false)
     {
     	// if we have a cache manager
 		if($this->cacheManager) {
@@ -146,8 +152,11 @@ class Router
 				$cache = $this->cacheManager->getCache(self::$cacheId);
 				$safeId = $this->getSafeId($class);
 				if($cache->test($safeId)) {
+					if($returnFile) {
+						return $cache->getBackend()->getFile(self::$cacheId . '_' . $safeId);
+					}
 					// get the content
-					$content = unserialize($cache->load($safeId));
+					$content = $cache->load($safeId);
 					return $content;
 				}
 			}
@@ -160,7 +169,7 @@ class Router
         $this->saveToCache($class, $dump);
 
         if($this->options['debug']) {
-        	$this->saveToCache("${class}_meta", $this->getRouteCollection()->getResources());
+        	$this->saveToCache("${class}_meta", serialize($this->getRouteCollection()->getResources()));
         }
     }
 
@@ -175,7 +184,7 @@ class Router
             return false;
         }
 
-        $metadata = $this->getFromCache("${class}_meta");
+        $metadata = unserialize($this->getFromCache("${class}_meta"));
         if(empty($metadata)) {
             return true;
         }
@@ -221,7 +230,7 @@ class Router
 			if($this->cacheManager->hasCache(self::$cacheId)) {
 				$cache = $this->cacheManager->getCache(self::$cacheId);
 				$safeId = $this->getSafeId($id);
-				$content = serialize(preg_replace('#^<\?php#', '', $content));
+				//$content = serialize(preg_replace('#^<\?php#', '', $content));
 				// save content to the cache
 				if(!$cache->save($content, $safeId)) {
 					throw new Exception("Failed to write in cache.\n".var_export(array('id' => $safeId, 'content' => $content), true));

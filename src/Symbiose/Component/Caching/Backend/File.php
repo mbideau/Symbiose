@@ -1,9 +1,11 @@
 <?php
 
-//namespace Falcon\Site\Component\Caching\Backend;
+namespace Symbiose\Component\Caching\Backend;
 
-class Falcon_Site_Component_Caching_Backend_File
-	extends Zend_Cache_Backend_File
+use Zend\Cache\Backend\File as BaseFile;
+
+class File
+	extends BaseFile
 {
 	/**
      * Make and return a file name (with path)
