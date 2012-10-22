@@ -14,7 +14,7 @@ use Symbiose\Framework\Application\ApplicationInterface,
 	Zend\Loader\ClassMapAutoloader as ClassLoader
 ;
 
-abstract class ApplicationBase
+class ApplicationBase
 	implements  ApplicationInterface
 {
 	/**
@@ -36,10 +36,16 @@ abstract class ApplicationBase
 	protected $dataPath;
 	
 	/**
-	 * The absolute path to logs directory
+	 * The absolute path to log directory
 	 * @var string
 	 */
-	protected $logsPath;
+	protected $logPath;
+	
+	/**
+	 * The absolute path to cache directory
+	 * @var string
+	 */
+	protected $cachePath;
 	
 	/**
 	 * The absolute path to the modules directory
@@ -52,6 +58,12 @@ abstract class ApplicationBase
 	 * @var string
 	 */
 	protected $libraryPath;
+	
+	/**
+	 * The absolute path to preloader directory
+	 * @var string
+	 */
+	protected $preloaderPath;
 	
 	/**
 	 * Used to detected if the application is already bootstraped
@@ -84,12 +96,24 @@ abstract class ApplicationBase
 	protected $moduleManager;
 	
 	/**
+	 * The system module name
+	 * @var string
+	 */
+	protected $systemModuleName = 'system';
+	
+	/**
 	 * The service container instance
 	 * @var object
 	 */
 	protected $serviceContainer;
 	
-/**
+	/**
+	 * The name of the current domain requested
+	 * @var string
+	 */
+	protected $domain;
+
+	/**
 	 * The constructor - register class autoloader(s)
 	 * @param	int		$envCode The environment code
 	 * @param	string	$envText The environment text
@@ -142,6 +166,7 @@ abstract class ApplicationBase
 				->initErrorHandler()
 				->resetIncludePath()
 				->initPathes()
+				->detectDomain()
 				->initClassLoader()
 				->initLogger()
 				->initModules()
@@ -163,7 +188,10 @@ abstract class ApplicationBase
 		$response = $this->serviceContainer->getHttpKernelService()->handle(
 			$this->serviceContainer->getRequestService()
 		);
+		! $this->logger ?: $this->logger->debug("Application: Got response:\n" . (is_object($response) ? get_class($response) : $response));
+		! $this->logger ?: $this->logger->debug('Application: Sending response ...');
 		$response->send();
+		! $this->logger ?: $this->logger->debug('Application: Response sent');
 	}
 	
 	/**
@@ -231,10 +259,13 @@ abstract class ApplicationBase
 	protected function initPathes()
 	{
 		$this->siteRoot = $this->detectSiteRoot();
-		$this->applicationPath = $this->siteRoot . '/application';
+		$this->applicationPath = $this->siteRoot;
 		$this->dataPath = $this->siteRoot . '/data';
 		$this->modulesPath = $this->applicationPath . '/modules';
 		$this->libraryPath = $this->siteRoot . '/library';
+		$this->logPath = $this->dataPath . '/log';
+		$this->cachePath = $this->dataPath . '/cache';
+		$this->preloaderPath = $this->applicationPath . '/preloader/build';
 		return $this;
 	}
 	
@@ -245,6 +276,21 @@ abstract class ApplicationBase
 	protected function detectSiteRoot()
 	{
 		return dirname(dirname($_SERVER['SCRIPT_FILENAME']));
+	}
+	
+	/**
+	 * Detect the domain requested and set it
+	 * @return PavillonApplication
+	 */
+	protected function detectDomain()
+	{
+		if(getenv('DOMAIN')) {
+			$this->domain = preg_replace('#^www\.#', '', getenv('DOMAIN'));
+		}
+		if(empty($this->domain)) {
+			throw new Exception("you must specify a domain as environment variable 'domain'");
+		}
+		return $this;
 	}
 	
 	/**
@@ -265,17 +311,50 @@ abstract class ApplicationBase
 	protected function initLogger()
 	{
 		$this->logger = new Logger();
-		// log errors
-		$steeamWriter = new Stream($this->logsPath . '/application-error.log');
-		$filterError = new Priority(4);
-		$steeamWriter->addFilter($filterError);
-		$formatter = new Formatter("%timestamp% %priorityName%: %message%\n");
-		$steeamWriter->setFormatter($formatter);
-		$this->logger->addWriter($steeamWriter);
+		// enable firephp logging only if special header was sent
+		if(isset($_SERVER['HTTP_X_SYMBIOSE_DEBUG']) && $_SERVER['HTTP_X_SYMBIOSE_DEBUG'] == 1) {
+			define('INSIGHT_CONFIG_PATH', $this->modulesPath . '/' . $this->systemModuleName . '/config/firephp/package.json');
+			//define('INSIGHT_DEBUG', true);
+			define('FIREPHP_ACTIVATED', true);
+			// include firephp init
+			include $this->libraryPath . '/FirePhp/FirePHP/Init.php';
+			// include firephp preloader
+			include $this->preloaderPath . '/preload.firephp-namespaced.php';
+			$firephp = new \Symbiose\Component\Logging\Writer\FirePHP();
+			$this->logger->addWriter($firephp);
+			// stream writer to debug
+			$steeamWriter = new Stream($this->logPath . '/application-debug.log');
+			$formatter = new Formatter("%timestamp% %priorityName%: %message%\n");
+			$steeamWriter->setFormatter($formatter);
+			$this->logger->addWriter($steeamWriter);
+			// log current environment and domain
+			$this->logger->info('Environment: ' . $this->environmentText . ' (code: ' . $this->environmentCode . ')');
+			$this->logger->info('Domain: ' . $this->domain);
+		}
+		// else use file(stream) writers
+		else {
+			// log errors
+			$steeamWriter = new Stream($this->logPath . '/application-error.log');
+			$filterError = new Priority(4);
+			$steeamWriter->addFilter($filterError);
+			$formatter = new Formatter("%timestamp% %priorityName%: %message%\n");
+			$steeamWriter->setFormatter($formatter);
+			$this->logger->addWriter($steeamWriter);
+		}
 		return $this;
 	}
 	
-	abstract protected function initModules();
+	/**
+	 * Initialise modules
+	 */
+	protected function initModules()
+	{
+		$this->logger->debug('Application: init modules');
+		$this->modules = array(
+			'system' => $this->modulesPath . '/' . $this->systemModuleName
+		);
+		return $this;
+	}
 	
 	/**
 	 * Build a module manager
@@ -308,6 +387,9 @@ abstract class ApplicationBase
 		$this->serviceContainer->setParameter('environment.code', $this->environmentCode);
 		$this->serviceContainer->setParameter('kernel.debug', $this->environmentCode != self::ENV_PRODUCTION);
 		$this->serviceContainer->setParameter('environment.text', $this->environmentText);
+		$this->serviceContainer->setParameter('path.site_root', $this->siteRoot);
+		$this->serviceContainer->setParameter('path.preloader', $this->preloaderPath);
+		$this->serviceContainer->setParameter('path.log', $this->logPath);
 		$this->serviceContainer->set('application', $this);
 		$this->serviceContainer->set('class_loader', $this->classLoader);
 		$this->serviceContainer->set('logger', $this->logger);
@@ -335,4 +417,5 @@ abstract class ApplicationBase
 	}
 	
 	public function getServiceContainer() { return $this->serviceContainer; }
+	public function getDomain() { return $this->domain; }
 }

@@ -58,16 +58,29 @@ class FirePHP
 	
 	public function __destruct()
 	{
-		if(!$this->controller) {
-			try  {
-				$this->controller = Logger::to('controller');
+		try {
+			if(!$this->controller) {
+				try  {
+					$this->controller = Logger::to('controller');
+				}
+				catch(\Exception $e) {
+					
+				}
 			}
-			catch(\Exception $e) {
-				
+			if($this->triggerInspect && $this->controller) {
+				//$this->controller->triggerInspect();
 			}
 		}
-		if($this->triggerInspect && $this->controller) {
-			//$this->controller->triggerInspect();
+		catch(\Exception $exception) {
+			error_log(sprintf(
+				"FirePHP::%s : Uncaught PHP Exception %s: '%s' at %s line %s\nTrace: %s",
+				__FUNCTION__,
+				get_class($exception),
+				$exception->getMessage(),
+				$exception->getFile(),
+				$exception->getLine(),
+				$exception->getTraceAsString()
+			));
 		}
 	}
 	

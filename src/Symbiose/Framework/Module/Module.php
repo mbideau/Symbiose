@@ -126,15 +126,16 @@ class Module
 	protected function preloadClasses(array $files)
 	{
 		if(!empty($files)) {
+			$preloadersDir = $this->serviceContainer->getParameter('path.preloader');
 			// load prefixed first
 			if(isset($files['prefixed']) && !empty($files['prefixed'])) {
 				foreach($files['prefixed'] as $f) {
-					include $f;
+					include "$preloadersDir/$f";
 				}
 			}
 			if(isset($files['namespaced']) && !empty($files['namespaced'])) {
 				foreach($files['namespaced'] as $f) {
-					include $f;
+					include "$preloadersDir/$f";
 				}
 			}
 		}

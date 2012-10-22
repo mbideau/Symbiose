@@ -114,7 +114,6 @@ class Header
 			$filename = basename($combined) . $fileSuffix;
 			// build public files parameters
 			$pbfParams = array(
-				'domain' => $this->serviceContainer->getParameter('domain'),
 				'basedir' => '/cache'
 			);
 			// if the public version not exists

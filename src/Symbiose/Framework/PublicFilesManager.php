@@ -164,9 +164,8 @@ class PublicFilesManager
 		if(empty($filename)) {
 			throw new Exception("You must provide a filename");
 		}
-		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
 		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
-		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$parentDir = $this->staticRoot . ($basedir ? $basedir : '');
 		$filePath = $parentDir . '/' . $filename;
 		return file_exists($filePath);
 	}
@@ -176,9 +175,8 @@ class PublicFilesManager
 		if(empty($filename)) {
 			throw new Exception("You must provide a filename");
 		}
-		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
 		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
-		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$parentDir = $this->staticRoot . ($basedir ? $basedir : '');
 		$filePath = $parentDir . '/' . $filename;
 		return $filePath;
 	}
@@ -194,9 +192,8 @@ class PublicFilesManager
 		if(empty($filename)) {
 			$filename = basename($src);
 		}
-		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
 		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
-		$parentDir = $this->staticRoot . ($domain ? '/' . $domain : '') . ($basedir ? $basedir : '');
+		$parentDir = $this->staticRoot . ($basedir ? $basedir : '');
 		$filePath = $parentDir . '/' . $filename;
 		return @copy($src, $filePath);
 	}
@@ -208,7 +205,7 @@ class PublicFilesManager
 		}
 		$domain = array_key_exists('domain', $parameters) ? $parameters['domain'] : null;
 		$basedir = array_key_exists('basedir', $parameters) ? $parameters['basedir'] : null;
-		$host = $domain ? "http://static.$domain" : $this->staticHost;
+		$host = $domain ? "http://cdn.$domain" : $this->staticHost;
 		$parentDir = $host . ($basedir ? $basedir : '');
 		$fileUrl = $parentDir . '/' . $filename;
 		return $fileUrl;

@@ -14,12 +14,11 @@ use Symfony\Component\Console\Input\InputArgument,
 class ResetLogs
 	extends Command
 {
-	protected $serviceContainer;
-	protected $domainDataPath;
+	protected $logPath;
 	
-	public function __construct($domainDataPath)
+	public function __construct($logPath)
 	{
-		$this->domainDataPath = $domainDataPath;
+		$this->logPath = $logPath;
 		parent::__construct();
 	}
 	
@@ -52,7 +51,7 @@ EOF
 		$output->writeln("----------");
 
 		// if the domain module data path is not defined
-		$logDir = $this->domainDataPath . '/logs';
+		$logDir = $this->logPath;
 		
 		if(!is_dir($logDir)) {
 			throw new Exception("The domain data dir doesn't exist ($logDir)");

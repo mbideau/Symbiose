@@ -10,7 +10,7 @@ use Symbiose\Framework\Application\ApplicationBase,
 	Symbiose\Component\Caching\CacheManagerStateful as CacheManager
 ;
 
-abstract class ApplicationBaseStateful
+class ApplicationBaseStateful
 	extends ApplicationBase
 	implements StatefulInterface
 {
@@ -68,11 +68,11 @@ abstract class ApplicationBaseStateful
 				->initErrorHandler()
 				->resetIncludePath()
 				->initPathes()
+				->detectDomain()
 				->initClassLoader()
-				->initCacheManager()
 				->initLogger()
-				->initCacheManager()
 				->initModules()
+				->initCacheManager()
 				->initServiceContainer()
 			;
 		return $this;
@@ -128,7 +128,11 @@ abstract class ApplicationBaseStateful
 	 * service container and module manager
 	 * @return ApplicationBaseStateful
 	 */
-	abstract protected function preloadClasses();
+	protected function preloadClasses()
+	{
+		include $this->preloaderPath . '/preload.builders-namespaced.php';
+		return $this;
+	}
 	
 	/**
 	 * (non-PHPdoc)
@@ -226,7 +230,16 @@ abstract class ApplicationBaseStateful
 		return $this;
 	}
 	
-	abstract protected function getCacheManagerTemplates();
+	/**
+	 * Return an array of caching templates for cache manager
+	 */
+	protected function getCacheManagerTemplates()
+	{
+		// restoring cache manager base configuration
+		$configurationFile = $this->modulesPath . '/' . $this->systemModuleName . '/config/caching.php';
+		$cacheTemplates = include $configurationFile;
+		return $cacheTemplates;
+	}
 	
 	/**
 	 * Retrieve the list of the modules preloaders
@@ -268,13 +281,13 @@ abstract class ApplicationBaseStateful
 					$contentPrefixed = '';
 					if(isset($preloaders['prefixed']) && !empty($preloaders['prefixed']))  {
 						foreach($preloaders['prefixed'] as $p) {
-							$contentPrefixed .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', file_get_contents($p)) . "\n";
+							$contentPrefixed .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', file_get_contents($this->preloaderPath . "/$p")) . "\n";
 						}
 					}
 					$contentNamespaced = '';
 					if(isset($preloaders['namespaced']) && !empty($preloaders['namespaced']))  {
 						foreach($preloaders['namespaced'] as $p) {
-							$contentNamespaced .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', file_get_contents($p)) . "\n";
+							$contentNamespaced .= preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', file_get_contents($this->preloaderPath . "/$p")) . "\n";
 						}
 					}
 					$cache = $this->cacheManager->hasCache('preloaders') ? $this->cacheManager->getCache('preloaders') : null;
@@ -308,9 +321,12 @@ abstract class ApplicationBaseStateful
 	 */
 	public function __destruct()
 	{
-		! $this->logger ?: $this->logger->debug('Application: Application ending ...');
 		try {
+			! $this->logger ?: $this->logger->debug('Application: Application ending ...');
 			$this->saveState();
+		}
+		catch(\Zend\Log\Exception\RuntimeException $exception) {
+			// do nothing for logging exception
 		}
 		catch(\Exception $exception) {
 			error_log(sprintf(
